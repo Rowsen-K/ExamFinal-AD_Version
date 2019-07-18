@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="margin_large">20dp</dimen>
+    <dimen name="pad_40">40.0dip</dimen>
+    <dimen name="pad_12">12.0dip</dimen>
+    <dimen name="pad_5">5.0dip</dimen>
+    <dimen name="pad_15">15.0dip</dimen>
+    <dimen name="pad_49">49.0dip</dimen>
+</resources>

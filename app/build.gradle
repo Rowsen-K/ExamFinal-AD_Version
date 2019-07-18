@@ -1,0 +1,45 @@
+tasks.whenTaskAdded{ task->   if(task.name.equals("lint")) {       task.enabled=false  }}
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.rowsen.examfinal"
+        minSdkVersion 19
+        targetSdkVersion 26
+        versionCode 90
+        versionName '9.0'
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}
+
+dependencies {
+    //noinspection GradleCompatible
+    implementation 'com.android.support:appcompat-v7:26.0.0-alpha1'
+    implementation 'com.android.support:design:26.0.0-alpha1'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:wrong.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:2.3-alpha'
+
+    implementation 'com.android.support:percent:26.1.0'
+    implementation 'me.grantland:autofittextview:0.2.1'
+    implementation project(':dachshundtablayout')
+    implementation project(':toasty')
+    implementation project(':RippleView')
+    implementation project(':ViewAnimation')
+    implementation project(':grav')
+    implementation project(':MatchView')
+    implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Areas areaId="Main" desc="主界面"  areaTitle="电工复审考试">
+    <Area areaId="XZ"
+        areaTitle="选择题"
+        desc="选择题模拟"
+        pts="80,2205,347,2205,347,2475,80,2475"/>
+    <Area areaId="PD"
+        areaTitle="判断题"
+        desc="判断题模拟"
+        pts="404,2205,670,2205,670,2475,404,2475"/>
+    <Area areaId="about"
+        areaTitle="关于"
+        desc="个人信息及捐赠事宜"
+        pts="730,2205,995,2205,995,2475,730,2475"/>
+    <Area areaId="ZL"
+        areaTitle="资料"
+        desc="复习资料"
+        pts="1050,2205,1325,2205,1325,2475,1050,2475"/>
+    <Area areaId="KS"
+        areaTitle="模拟考试"
+        desc="模拟考试"
+        pts="1375,2205,1645,2205,1645,2475,1375,2475"/>
+</Areas>

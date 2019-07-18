@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="@dimen/pad_40"
+    android:layout_marginRight="@dimen/pad_40"
+    android:background="@drawable/shape_dialog"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/shape_topradius_dialog"
+        android:gravity="center"
+        android:paddingTop="15.0dip"
+        android:paddingBottom="15.0dip"
+        android:text="分数分析"
+        android:textColor="@color/white"
+        android:textSize="19sp" />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="15.0dip"
+        android:paddingTop="10.0dip"
+        android:paddingRight="15.0dip">
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5.0dip"
+            android:gravity="center_vertical">
+            <ImageView
+                android:id="@+id/right"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentLeft="true"
+                 />
+            <TextView
+                android:id="@+id/tv_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/right"
+                android:text="正确数："
+                android:textColor="@color/yellow"
+                android:textSize="16sp"/>
+
+            <ImageView
+                android:id="@+id/wrong"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_toLeftOf="@id/tv_bus_price"
+                android:visibility="gone"/>
+            <TextView
+                android:id="@+id/tv_bus_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="答题数："
+                android:textColor="@color/yellow"
+                android:textSize="16sp"
+                />
+        </RelativeLayout>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3.0dip"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/right_count"
+                android:layout_width="0.0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="5.0"
+                android:ellipsize="end"
+                android:gravity="left"
+                android:singleLine="true"
+
+                android:textColor="@color/text_gray"
+                android:textSize="13sp" />
+            <ImageView
+                android:id="@+id/vs"
+                android:layout_width="0.0dip"
+                android:layout_height="25.0dip"
+                android:layout_weight="1.0"
+                 />
+            <TextView
+                android:id="@+id/ans_count"
+                android:layout_width="0.0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="5.0"
+                android:ellipsize="end"
+                android:gravity="right"
+                android:maxEms="6"
+                android:singleLine="true"
+
+                android:textColor="@color/text_gray"
+                android:textSize="13sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3.0dip"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0.0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="4.5"
+                android:gravity="left"
+                android:text="用时："
+                android:textColor="@color/gray2"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="0.0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="4.5"
+                android:gravity="right"
+                android:text="得分："
+                android:textColor="@color/gray2"
+                android:textSize="13sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3.0dip"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="0.0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="4.5"
+                android:gravity="left"
+
+                android:textColor="@color/text_gray"
+                android:textSize="15sp" />
+            <TextView
+                android:id="@+id/score"
+                android:layout_width="0.0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight="4.5"
+                android:gravity="right"
+
+                android:textColor="@color/text_gray"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </LinearLayout>
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.6dip"
+        android:layout_marginTop="@dimen/pad_15"
+        android:background="@color/trans40" />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/pad_49"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_dialog_cancel"
+            android:layout_width="0.0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0"
+            android:background="@drawable/tv_sel_bule"
+            android:gravity="center"
+            android:padding="5.0dip"
+            android:text="浏览错题"
+            android:textColor="@color/dark_blue"
+            android:textSize="18sp" />
+        <View
+            android:layout_width="0.6dip"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="13.0dip"
+            android:layout_marginBottom="13.0dip"
+            android:background="@color/trans40" />
+        <TextView
+            android:id="@+id/tv_dialog_confirm"
+            android:layout_width="0.0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0"
+            android:background="@drawable/tv_sel_bule"
+            android:gravity="center"
+            android:padding="5.0dip"
+            android:text="确认"
+            android:textColor="@color/dark_blue"
+            android:textSize="18sp" />
+    </LinearLayout>
+</LinearLayout>

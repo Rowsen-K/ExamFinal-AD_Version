@@ -1,0 +1,43 @@
+apply plugin: 'com.android.library'
+
+// This is the library version used when deploying the artifact
+version = "1.0.1"
+android {
+    compileSdkVersion 28
+    buildToolsVersion "28.0.2"
+    resourcePrefix "matchview__"	//��������
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+def siteUrl = 'https://github.com/Rogero0o/MatchView'      // ��Ŀ����ҳ
+def gitUrl = 'https://github.com/Rogero0o/MatchView.git'   // Git�ֿ��url
+group = "com.roger.match.library"                                        // Maven Group ID for the artifact��һ������Ψһ�İ���
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())

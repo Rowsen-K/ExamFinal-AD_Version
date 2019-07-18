@@ -1,0 +1,5 @@
+com.roger.match.library
+attr text
+attr textColor
+attr textSize
+styleable match text textColor textSize
