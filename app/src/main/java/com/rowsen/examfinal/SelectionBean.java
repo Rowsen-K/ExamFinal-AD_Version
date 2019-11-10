@@ -9,6 +9,7 @@ public class SelectionBean implements Parcelable {
     public String answer1;
     public String answer2;
     public String answer3;
+    public String answer4;
     public String corAns;
     public boolean flag = false;
 
@@ -18,13 +19,23 @@ public class SelectionBean implements Parcelable {
         answer1 = in.readString();
         answer2 = in.readString();
         answer3 = in.readString();
+        answer4 = in.readString();
         corAns = in.readString();
     }
 
     public SelectionBean() {
-
     }
 
+    public SelectionBean(SelectionBean sb){
+        this.No = sb.No;
+        this.question = sb.question;
+        this.answer1 = sb.answer1;
+        this.answer2 =sb.answer2;
+        this.answer3 = sb.answer3;
+        this.answer4 = sb.answer4;
+        this.corAns = sb.corAns;
+        this.flag = sb.flag;
+    }
     public static final Creator<SelectionBean> CREATOR = new Creator<SelectionBean>() {
         @Override
         public SelectionBean createFromParcel(Parcel in) {

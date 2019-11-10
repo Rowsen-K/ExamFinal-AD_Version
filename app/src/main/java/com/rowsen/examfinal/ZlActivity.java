@@ -50,6 +50,11 @@ public class ZlActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         tab = null;
         vp = null;
         list = null;
@@ -65,7 +70,6 @@ public class ZlActivity extends BaseActivity {
         // selList = null;
         // judList = null;
         app = null;
-        finish();
     }
 
     @SuppressLint({"ResourceAsColor", "NewApi"})

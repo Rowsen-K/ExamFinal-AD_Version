@@ -8,24 +8,47 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.dreamlive.hotimglibrary.entity.HotArea;
 import com.dreamlive.hotimglibrary.utils.FileUtils;
 import com.dreamlive.hotimglibrary.view.HotClickView;
 import com.github.glomadrian.grav.GravView;
+import com.qq.e.ads.banner.ADSize;
+import com.qq.e.ads.banner.AbstractBannerADListener;
+import com.qq.e.ads.banner.BannerView;
+import com.qq.e.comm.util.AdError;
 import com.rowsen.mytools.BaseActivity;
+import com.rowsen.mytools.Tools;
 
+import java.io.IOException;
 import java.io.InputStream;
+
+import es.dmoral.toasty.Toasty;
+
+import static com.rowsen.examfinal.Myapp.GDT_APPID;
 
 public class MainActivity extends BaseActivity {
     HotClickView mHotView;
-    String code;
+    String exam_type;
     GravView grav;
+    FrameLayout type_select;
+    ViewGroup GDT_banner;
     Myapp app = Myapp.getInstance();
+    //gdt横幅广告ID
+    String posId = "3080059597263454";
+    BannerView bv;
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         grav = null;
         app = null;
         mHotView = null;
@@ -33,7 +56,6 @@ public class MainActivity extends BaseActivity {
             if (act != null)
                 act.finish();
         }
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -46,8 +68,11 @@ public class MainActivity extends BaseActivity {
         }
         setContentView(R.layout.activity_main);
         grav = findViewById(R.id.grav);
+        type_select = findViewById(R.id.type_select);
+        GDT_banner = findViewById(R.id.type_GDT_banner);
         initall();
         initDatas();
+        banner_GDT();
         // 4、 设置监听事件
         mHotView.setOnClickListener(new HotClickView.OnClickListener() {
             @Override
@@ -59,25 +84,27 @@ public class MainActivity extends BaseActivity {
                 switch (hotArea.getAreaId()) {
                     case "XZ":
                         Intent selectionIntent = new Intent(MainActivity.this, SelectionActivity.class);
-                        selectionIntent.putParcelableArrayListExtra("selectionList", Myapp.selectionList);
+                        selectionIntent.putExtra("exam_type", exam_type);
+                        //selectionIntent.putParcelableArrayListExtra("selectionList", Myapp.selectionList);
                         //  startActivity(selectionIntent, ActivityOptionsCompat.makeScaleUpAnimation(mHotView, (pos[0] + pos[2]) / 2, (pos[1] + pos[5]) / 2, pos[2] - pos[0], pos[5] - pos[1]).toBundle());
                         startActivity(selectionIntent);
                         break;
                     case "PD":
                         Intent judgeIntent = new Intent(MainActivity.this, JudgeActivity.class);
-                        judgeIntent.putParcelableArrayListExtra("judgeList", Myapp.judgeList);
+                        //judgeIntent.putParcelableArrayListExtra("judgeList", Myapp.judgeList);
                         // startActivity(judgeIntent, ActivityOptionsCompat.makeScaleUpAnimation(mHotView, (pos[0] + pos[2]) / 2, (pos[1] + pos[5]) / 2, pos[2] - pos[0], pos[5] - pos[1]).toBundle());
                         startActivity(judgeIntent);
                         break;
                     case "about":
                         Intent aboutIntent = new Intent(MainActivity.this, AboutActivity.class);
-                        aboutIntent.putExtra("code", code);
+                        //aboutIntent.putExtra("code", code);
                         //  aboutIntent.putExtra("num",num);
                         //startActivity(aboutIntent, ActivityOptionsCompat.makeScaleUpAnimation(mHotView, (pos[0] + pos[2]) / 2, (pos[1] + pos[5]) / 2, pos[2] - pos[0], pos[5] - pos[1]).toBundle());
                         startActivity(aboutIntent);
                         break;
                     case "ZL":
                         Intent zlIntent = new Intent(MainActivity.this, ZlActivity.class);
+                        zlIntent.putExtra("exam_type", exam_type);
                         // zlIntent.putParcelableArrayListExtra("selectionList", selectionList);
                         //  zlIntent.putParcelableArrayListExtra("judgeList", judgeList);
                         //  zlIntent.putParcelableArrayListExtra("all", allList);
@@ -86,7 +113,7 @@ public class MainActivity extends BaseActivity {
                         break;
                     case "KS":
                         Intent ExamIntent = new Intent(MainActivity.this, ExamActivity.class);
-                        ExamIntent.putExtra("code", code);
+                        ExamIntent.putExtra("exam_type", exam_type);
                         //  ExamIntent.putParcelableArrayListExtra("selectionList", selectionList);
                         //  ExamIntent.putParcelableArrayListExtra("judgeList", judgeList);
                         //  startActivity(ExamIntent, ActivityOptionsCompat.makeScaleUpAnimation(mHotView, (pos[0] + pos[2]) / 2, (pos[1] + pos[5]) / 2, pos[2] - pos[0], pos[5] - pos[1]).toBundle());
@@ -176,4 +203,75 @@ public class MainActivity extends BaseActivity {
         // grav.setVisibility(View.VISIBLE);
     }
 
+    //读取题库文件
+    void readXml(final String exam_type, final boolean mode) {
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                try {
+                    Myapp.selectionList.clear();
+                    Myapp.judgeList.clear();
+                    Myapp.allList.clear();
+                    Tools.file2list(getAssets().open(exam_type + "selection.txt"), Myapp.selectionList,mode);
+                    Tools.file2list(getAssets().open(exam_type + "judge.txt"), Myapp.judgeList,mode);
+                    Myapp.allList.addAll(Myapp.selectionList);
+                    Myapp.allList.addAll(Myapp.judgeList);
+                    //Tools.list2xml(Myapp.allList, new File(getFilesDir().getPath(), "Exam.xml"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //handler.sendEmptyMessage(4);
+                }
+            }
+        }.start();
+    }
+
+    public void exam_select(View view) {
+        exam_type = ((TextView) view).getText().toString();
+        if ("上岗证".equals(exam_type))
+            readXml(exam_type,false);
+        else readXml(exam_type,true);
+        type_select.setVisibility(View.GONE);
+        Toasty.success(this,exam_type).show();
+    }
+
+    //显示GDT横幅广告
+    void banner_GDT() {
+        /*mi_banner.setVisibility(View.GONE);
+        tmall.setVisibility(View.GONE);
+        note.setVisibility(View.VISIBLE);
+        GDT_banner.setVisibility(View.VISIBLE);*/
+        bv = new BannerView(this, ADSize.BANNER, GDT_APPID, posId);
+        // 注意：如果开发者的banner不是始终展示在屏幕中的话，请关闭自动刷新，否则将导致曝光率过低。
+        // 并且应该自行处理：当banner广告区域出现在屏幕后，再手动loadAD。
+        bv.setRefresh(30);
+        bv.setADListener(new AbstractBannerADListener() {
+
+            @Override
+            public void onADClicked() {
+                super.onADClicked();
+            }
+
+            @Override
+            public void onADClosed() {
+                super.onADClosed();
+            }
+
+            @Override
+            public void onNoAD(AdError error) {
+                Log.i(
+                        "AD_DEMO",
+                        String.format("Banner onNoAD，eCode = %d, eMsg = %s", error.getErrorCode(),
+                                error.getErrorMsg()));
+            }
+
+            @Override
+            public void onADReceiv() {
+                GDT_banner.setVisibility(View.VISIBLE);
+                Log.i("AD_DEMO", "ONBannerReceive");
+            }
+        });
+        GDT_banner.addView(bv);
+        bv.loadAD();
+    }
 }

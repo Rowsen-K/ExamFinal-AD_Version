@@ -58,13 +58,28 @@
                 android:resource="@xml/file_paths" />
         </provider>
         <!--广点通广告需要-->
-        <activity android:name="com.qq.e.ads.ADActivity" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
-        <activity android:name="com.qq.e.ads.PortraitADActivity" android:screenOrientation="portrait" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
-        <activity android:name="com.qq.e.ads.LandscapeADActivity" android:screenOrientation="landscape" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.qq.e.ads.ADActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize" />
+        <activity
+            android:name="com.qq.e.ads.PortraitADActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.qq.e.ads.LandscapeADActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+            android:screenOrientation="landscape" />
         <!-- 声明 SDK 所需要的组件 -->
         <service
             android:name="com.qq.e.comm.DownloadService"
-            android:exported="false"/>
+            android:exported="false" />
+
+        <meta-data
+            android:name="TA_APPKEY"
+            android:value="Aqc1108173909" />
+        <meta-data
+            android:name="InstallChannel"
+            android:value="Mi" />
     </application>
 
 </manifest>

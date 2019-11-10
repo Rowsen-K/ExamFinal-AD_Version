@@ -18,4 +18,6 @@
     <color name="bg1">#A7DCE0</color>
     <color name="text">#144469</color>
     <color name="black">#000000</color>
+    <color name="app_text_color">#ff323232</color>
+    <color name="focus_text_color">#ff646464</color>
 </resources>

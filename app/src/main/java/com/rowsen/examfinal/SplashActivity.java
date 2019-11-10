@@ -56,14 +56,12 @@ public class SplashActivity extends BaseActivity {
     //String GTD_SplashID = "8863364436303842593";
     SplashAD splashAD;
 
+    //跳转状态
+    boolean jump_state = false;
+
     @Override
     public void onBackPressed() {
         // super.onBackPressed();
-        matchTextView = null;
-        matchTextView2 = null;
-        handler = null;
-        splashAD = null;
-        finish();
     }
 
     @Override
@@ -74,6 +72,10 @@ public class SplashActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        matchTextView = null;
+        matchTextView2 = null;
+        handler = null;
+        splashAD = null;
         super.onDestroy();
     }
 
@@ -98,12 +100,13 @@ public class SplashActivity extends BaseActivity {
                 super.handleMessage(msg);
                 switch (msg.what) {
                     case 2:
-                        matchTextView.hide();
-                        matchTextView2.hide();
+                        if(matchTextView!=null)matchTextView.hide();
+                        if(matchTextView2!=null)matchTextView2.hide();
                         sendEmptyMessageDelayed(3, 1080);
                         break;
                     case 3:
-                        jump();
+                        if (!jump_state)
+                            jump();
                         break;
                     case 4:
                         Toasty.error(SplashActivity.this, "题库读取失败,请重开或重新安装App!").show();
@@ -111,7 +114,7 @@ public class SplashActivity extends BaseActivity {
                 }
             }
         };
-        readXml();
+        //readXml();
         // 如果api >= 23 需要显式申请权限
         permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_PHONE_STATE};
         if (Build.VERSION.SDK_INT >= 23)
@@ -121,25 +124,7 @@ public class SplashActivity extends BaseActivity {
     }
 
 
-    //读取题库文件
-    void readXml() {
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                try {
-                    Tools.file2list(getAssets().open("selection.txt"), Myapp.selectionList);
-                    Tools.file2list(getAssets().open("judge.txt"), Myapp.judgeList);
-                    Myapp.allList.addAll(Myapp.selectionList);
-                    Myapp.allList.addAll(Myapp.judgeList);
-                    //Tools.list2xml(Myapp.allList, new File(getFilesDir().getPath(), "Exam.xml"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    handler.sendEmptyMessage(4);
-                }
-            }
-        }.start();
-    }
+
 
     //授权失败或异常递归授权
     void grant(final String[] permissions) {
@@ -190,7 +175,7 @@ public class SplashActivity extends BaseActivity {
                 public void onAdDismissed() {
                     //这个方法被调用时，表示从开屏广告消失。
                     //Log.d("消失", "onAdDismissed");
-                    jump();
+                    if (!jump_state) jump();
                 }
 
                 @Override
@@ -234,7 +219,7 @@ public class SplashActivity extends BaseActivity {
         splashAD = new SplashAD(this, GDT_container, null, GDT_APPID, GTD_SplashID, new SplashADListener() {
             @Override
             public void onADDismissed() {
-                jump();
+                if (!jump_state) jump();
             }
 
             @Override
@@ -249,7 +234,8 @@ public class SplashActivity extends BaseActivity {
 
             @Override
             public void onADClicked() {
-                jump();
+                if (!jump_state)
+                    jump();
             }
 
             @Override
@@ -286,6 +272,7 @@ public class SplashActivity extends BaseActivity {
 
     //先清除全屏状态跳转主页,否则会导致主页动画失效
     void jump() {
+        jump_state = true;
         WindowManager.LayoutParams lp = getWindow().getAttributes();
         lp.flags &= (~WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().setAttributes(lp);

@@ -16,9 +16,14 @@ public class JudgeBean implements Parcelable {
     }
 
     public JudgeBean() {
-
     }
 
+    public  JudgeBean(JudgeBean jb){
+        this.No = jb.No;
+        this.question = jb.question;
+        this.answer = jb.answer;
+        this.flag = jb.flag;
+    }
     public static final Creator<JudgeBean> CREATOR = new Creator<JudgeBean>() {
         @Override
         public JudgeBean createFromParcel(Parcel in) {

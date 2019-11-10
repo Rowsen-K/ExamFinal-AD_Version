@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,6 +81,7 @@ public class MyFragment extends Fragment {
                         if (sb.flag) v.setBackgroundColor(getResources().getColor(R.color.bg1));
                         else v.setBackgroundColor(getResources().getColor(R.color.zlyellow));
                         ques.setText(sb.No + "、" + sb.question);
+                        //Log.e("答案",sb.corAns);
                         switch (sb.corAns) {
                             case "A":
                                 ans1.setText(sb.answer1);
@@ -89,6 +91,9 @@ public class MyFragment extends Fragment {
                                 break;
                             case "C":
                                 ans1.setText(sb.answer3);
+                                break;
+                            case "D":
+                                ans1.setText(sb.answer4);
                                 break;
                         }
                         return v;

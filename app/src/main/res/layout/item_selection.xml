@@ -153,6 +153,7 @@
                     app:layout_marginRightPercent="1.9999981%" />
 </com.andexert.library.RippleView>
             </android.support.percent.PercentRelativeLayout>
+
         </android.support.percent.PercentRelativeLayout>
     </android.support.percent.PercentRelativeLayout>
 </android.support.percent.PercentRelativeLayout>

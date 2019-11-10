@@ -81,6 +81,8 @@ public class ExamActivity extends BaseActivity {
 
     //广点通测试bannerID
     //String BannerPosID = "9079537218417626401";
+    boolean exam_mode;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,9 +90,13 @@ public class ExamActivity extends BaseActivity {
             getSupportActionBar().hide();
         }
         setContentView(R.layout.activity_exam);
+        Toasty.error(this,"点击广告获得完整的考试体验！").show();
         GDT_banner = findViewById(R.id.GDT_banner);
         mi_banner = findViewById(R.id.mi_banner);
         tmall = findViewById(R.id.tmall);
+        if ("上岗证".equals(getIntent().getStringExtra("exam_type")))
+            exam_mode = false;
+        else exam_mode = true;
         tmall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -151,7 +157,9 @@ public class ExamActivity extends BaseActivity {
                 Object object = exam.get(position);
                 String uAns = ansMap.get((position + 1) + "");
                 if (position < selectionNum) {
-                    v = View.inflate(getApplicationContext(), R.layout.item_selection, null);
+                    if (exam_mode)
+                        v = View.inflate(getApplicationContext(), R.layout.item_selection2, null);
+                    else v = View.inflate(getApplicationContext(), R.layout.item_selection, null);
                     TextView ques = v.findViewById(R.id.tv_question);
                     TextView index = v.findViewById(R.id.tv_question_index);
                     ques.setText((position + 1) + "、" + ((SelectionBean) object).question);
@@ -159,6 +167,9 @@ public class ExamActivity extends BaseActivity {
                     final TextView ans1;
                     final TextView ans2;
                     final TextView ans3;
+                    final TextView ans4;
+                    PercentRelativeLayout item4 = null;
+                    RippleView rip4 = null;
                     ans1 = v.findViewById(R.id.tv_answer1);
                     ans2 = v.findViewById(R.id.tv_answer2);
                     ans3 = v.findViewById(R.id.tv_answer3);
@@ -175,25 +186,40 @@ public class ExamActivity extends BaseActivity {
                     RippleView rip1 = v.findViewById(R.id.rip1);
                     RippleView rip2 = v.findViewById(R.id.rip2);
                     RippleView rip3 = v.findViewById(R.id.rip3);
-
+                    if (exam_mode) {
+                        ans4 = v.findViewById(R.id.tv_answer4);
+                        ans4.setText(((SelectionBean) object).answer4);
+                        item4 = v.findViewById(R.id.rl_answer4);
+                        rip4 = v.findViewById(R.id.rip4);
+                    }
                     if (uAns == null) {
                         item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                        if(exam_mode) item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                     } else {
                         switch (uAns) {
                             case "A":
                                 item1.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                                 item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                if(exam_mode) item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 break;
                             case "B":
                                 item2.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                                 item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                if(exam_mode) item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 break;
                             case "C":
                                 item3.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
+                                item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                if(exam_mode) item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                break;
+                            case "D":
+                                item4.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
+                                item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 break;
@@ -202,6 +228,7 @@ public class ExamActivity extends BaseActivity {
                         }
                     }
                     //item1.setOnClickListener(new View.OnClickListener() {
+                    final PercentRelativeLayout finalItem = item4;
                     rip1.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -209,6 +236,7 @@ public class ExamActivity extends BaseActivity {
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                             item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            if(exam_mode) finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         }
                     });
                     // item2.setOnClickListener(new View.OnClickListener() {
@@ -219,6 +247,7 @@ public class ExamActivity extends BaseActivity {
                             item2.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            if(exam_mode) finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         }
                     });
                     // item3.setOnClickListener(new View.OnClickListener() {
@@ -229,8 +258,21 @@ public class ExamActivity extends BaseActivity {
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                             item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            if(exam_mode) finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         }
                     });
+                    if(exam_mode){
+                        rip4.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ansMap.put((position + 1) + "", "D");
+                                finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
+                                item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            }
+                        });
+                    }
                 } else {
                     v = View.inflate(getApplicationContext(), R.layout.item_judge, null);
                     TextView ques = v.findViewById(R.id.tv_question);
@@ -305,12 +347,16 @@ public class ExamActivity extends BaseActivity {
                 View v;
                 Object ob = wrongList.get(i);
                 if (ob instanceof SelectionBean) {
-                    v = View.inflate(ExamActivity.this, R.layout.item_selection, null);
+                    if(exam_mode)
+                    v = View.inflate(ExamActivity.this, R.layout.item_selection2, null);
+                    else v = View.inflate(ExamActivity.this, R.layout.item_selection, null);
                     TextView index = v.findViewById(R.id.tv_question_index);
                     TextView ques = v.findViewById(R.id.tv_question);
                     TextView ans1 = v.findViewById(R.id.tv_answer1);
                     TextView ans2 = v.findViewById(R.id.tv_answer2);
                     TextView ans3 = v.findViewById(R.id.tv_answer3);
+                    TextView ans4;
+                    PercentRelativeLayout item4 = null;
                     PercentRelativeLayout item1 = v.findViewById(R.id.rl_answer1);
                     PercentRelativeLayout item2 = v.findViewById(R.id.rl_answer2);
                     PercentRelativeLayout item3 = v.findViewById(R.id.rl_answer3);
@@ -320,6 +366,11 @@ public class ExamActivity extends BaseActivity {
                     ans1.setText(((SelectionBean) ob).answer1);
                     ans2.setText(((SelectionBean) ob).answer2);
                     ans3.setText(((SelectionBean) ob).answer3);
+                    if(exam_mode){
+                        ans4 = v.findViewById(R.id.tv_answer4);
+                        item4 = v.findViewById(R.id.rl_answer4);
+                        ans4.setText(((SelectionBean) ob).answer4);
+                    }
                     switch (uAns) {
                         case "A":
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answerwrong));
@@ -329,6 +380,9 @@ public class ExamActivity extends BaseActivity {
                             break;
                         case "C":
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answerwrong));
+                            break;
+                        case "D":
+                            item4.setBackground(getResources().getDrawable(R.drawable.bg_answerwrong));
                             break;
                         default:
                             break;
@@ -342,6 +396,9 @@ public class ExamActivity extends BaseActivity {
                             break;
                         case "C":
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
+                            break;
+                        case "D":
+                            item4.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                             break;
                         default:
                             break;
@@ -479,13 +536,6 @@ public class ExamActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        clock.stop();
-        flag = false;
         exam_listView = null;
         wrong_listView = null;
         clock = null;
@@ -498,7 +548,13 @@ public class ExamActivity extends BaseActivity {
         source = null;
         exam_list_adapter = null;
         handler = null;
-        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        clock.stop();
+        flag = false;
     }
 
     //显示横幅广告

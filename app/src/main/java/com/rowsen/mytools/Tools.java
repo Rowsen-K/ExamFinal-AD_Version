@@ -44,7 +44,7 @@ import javax.xml.transform.stream.StreamResult;
  */
 public class Tools {
 
-    public static void file2list(InputStream in, ArrayList list) {//传入对应的文件的流和提供一个保存流文件提出出的数据的集合对象
+    public static void file2list(InputStream in, ArrayList list,boolean mode) {//传入对应的文件的流和提供一个保存流文件提出出的数据的集合对象
         BufferedReader bf = new BufferedReader(new InputStreamReader(in));
         try {
             String s = bf.readLine();
@@ -57,15 +57,24 @@ public class Tools {
                 sb.answer1 = all[1];
                 sb.answer2 = all[2];
                 sb.answer3 = all[3];
-                sb.corAns = all[4].trim();
+                if(mode) {
+                    sb.answer4 = all[4];
+                    sb.corAns = all[5].trim();
+                }
+                else {
+                    sb.answer4 = "空";
+                    sb.corAns = all[4].trim();
+                }
                 list.add(sb);
                 s = bf.readLine();
             }
+            //Log.e(list.size()+"","-----------------------数目");
             while (s != null && s != "") {
                 String[] all = s.split("=");
                 JudgeBean jb = new JudgeBean();
                 jb.No = n++ + "";
                 jb.question = all[0];
+                //Log.e(list.size()+"",jb.No+"     "+jb.question);
                 jb.answer = all[1].trim();
                 list.add(jb);
                 s = bf.readLine();
@@ -198,16 +207,18 @@ public class Tools {
         for (int n = 1; n <= selectionNum; ) {
             Object ob = resource.get(r.nextInt(size));
             if (ob instanceof SelectionBean && !target.contains(ob)) {
-                ((SelectionBean) ob).No = n + "";
-                target.add(ob);
+                SelectionBean sb = new SelectionBean((SelectionBean) ob);
+                sb.No = n + "";
+                target.add(sb);
                 n++;
             }
         }
         for (int n = 1; n <= judgeNum; ) {
             Object ob = resource.get(r.nextInt(size));
             if (ob instanceof JudgeBean && !target.contains(ob)) {
-                ((JudgeBean) ob).No = (n + selectionNum) + "";
-                target.add(ob);
+                JudgeBean jb = new JudgeBean((JudgeBean) ob);
+                jb.No = (n + selectionNum) + "";
+                target.add(jb);
                 n++;
             }
         }

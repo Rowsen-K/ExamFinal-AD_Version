@@ -48,8 +48,9 @@ public class JudgeActivity extends BaseActivity {
         wrong = 0;
         list = new ArrayList<>();
         mark = new HashMap<>();
-        ArrayList source = getIntent().getParcelableArrayListExtra("judgeList");
-        Tools.get2question(source, list, 0, Myapp.judgeList.size());
+        //ArrayList source = getIntent().getParcelableArrayListExtra("judgeList");
+        //ArrayList source = Myapp.judgeList;
+        Tools.get2question(Myapp.judgeList, list, 0, Myapp.judgeList.size());
         BaseAdapter bad = new BaseAdapter() {
             @Override
             public int getCount() {
@@ -179,6 +180,11 @@ public class JudgeActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         lv = null;
         count = null;
         list = null;
@@ -186,6 +192,5 @@ public class JudgeActivity extends BaseActivity {
         mark = null;
         rip1 = null;
         rip2 = null;
-        finish();
     }
 }

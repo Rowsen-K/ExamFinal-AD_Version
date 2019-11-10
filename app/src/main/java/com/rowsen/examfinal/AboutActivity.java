@@ -108,8 +108,12 @@ public class AboutActivity extends BaseActivity implements View.OnLongClickListe
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         img = null;
         rip = null;
-        finish();
     }
 }

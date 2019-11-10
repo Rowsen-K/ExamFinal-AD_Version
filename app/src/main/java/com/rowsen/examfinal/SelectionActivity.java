@@ -27,12 +27,19 @@ public class SelectionActivity extends BaseActivity {
 
     RippleView rip1;
     RippleView rip2;
-    RippleView rip3;
+    RippleView rip3, rip4;
     Myapp app = Myapp.getInstance();
+
+    boolean exam_mode;
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         sl_lv = null;
         list = null;
         change = null;
@@ -42,7 +49,6 @@ public class SelectionActivity extends BaseActivity {
         rip2 = null;
         rip3 = null;
         app = null;
-        finish();
     }
 
     @Override
@@ -62,11 +68,14 @@ public class SelectionActivity extends BaseActivity {
         list = new ArrayList<>();
         change = new HashMap();
         mark = new HashMap<>();
+        if ("上岗证".equals(getIntent().getStringExtra("exam_type")))
+            exam_mode = false;
+        else exam_mode = true;
         // File xml = new File(getFilesDir().getPath(), "Exam.xml");
         // Tools.xml2list(xml, list, 1);
-        ArrayList source = getIntent().getParcelableArrayListExtra("selectionList");
-
-        Tools.get2question(source, list, Myapp.selectionList.size(), 0);
+        //ArrayList source = getIntent().getParcelableArrayListExtra("selectionList");
+        //ArrayList source = Myapp.selectionList;
+        Tools.get2question(Myapp.selectionList, list, Myapp.selectionList.size(), 0);
         //System.out.println("=============后"+Myapp.selectionList);
         // temp = null;
         BaseAdapter adp = new BaseAdapter() {
@@ -88,9 +97,11 @@ public class SelectionActivity extends BaseActivity {
             @Override
             public View getView(final int position, View convertView, ViewGroup parent) {
                 View v;
-                if (convertView == null)
-                    v = View.inflate(app, R.layout.item_selection, null);
-                else
+                if (convertView == null) {
+                    if (exam_mode)
+                        v = View.inflate(app, R.layout.item_selection2, null);
+                    else v = View.inflate(app, R.layout.item_selection, null);
+                } else
                     v = convertView;
                 TextView index = v.findViewById(R.id.tv_question_index);
                 TextView ques = v.findViewById(R.id.tv_question);
@@ -99,12 +110,15 @@ public class SelectionActivity extends BaseActivity {
                 final TextView ans1;
                 final TextView ans2;
                 final TextView ans3;
+                final TextView ans4;
+                PercentRelativeLayout item4 = null;
                 ans1 = v.findViewById(R.id.tv_answer1);
                 ans2 = v.findViewById(R.id.tv_answer2);
                 ans3 = v.findViewById(R.id.tv_answer3);
                 ans1.setText(list.get(position).answer1);
                 ans2.setText(list.get(position).answer2);
                 ans3.setText(list.get(position).answer3);
+
                 final PercentRelativeLayout item1 = v.findViewById(R.id.rl_answer1);
                 final PercentRelativeLayout item2 = v.findViewById(R.id.rl_answer2);
                 final PercentRelativeLayout item3 = v.findViewById(R.id.rl_answer3);
@@ -112,11 +126,50 @@ public class SelectionActivity extends BaseActivity {
                 rip2 = v.findViewById(R.id.rip2);
                 rip3 = v.findViewById(R.id.rip3);
                 final ImageView img = v.findViewById(R.id.iv_result);
+                if (exam_mode) {
+                    ans4 = v.findViewById(R.id.tv_answer4);
+                    ans4.setText(list.get(position).answer4);
+                    item4 = v.findViewById(R.id.rl_answer4);
+                    rip4 = v.findViewById(R.id.rip4);
+                    final PercentRelativeLayout finalItem1 = item4;
+                    rip4.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if ("D".equals(list.get(position).corAns)) {
+                                finalItem1.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
+                                //    img.setVisibility(View.VISIBLE);
+                                if (!change.containsKey(position)) {
+                                    img.setImageResource(R.drawable.icon_gameright);
+                                    rightCount++;
+                                    record.setText("正确：" + rightCount + "    错误：" + wrongCount);
+                                    mark.put(position, 0);
+                                }
+                            } else {
+                                finalItem1.setBackground(getResources().getDrawable(R.drawable.bg_answerwrong));
+                                //   img.setVisibility(View.VISIBLE);
+                                if (!change.containsKey(position)) {
+                                    img.setImageResource(R.drawable.icon_gamewrong);
+                                    wrongCount++;
+                                    record.setText("正确：" + rightCount + "    错误：" + wrongCount);
+                                    mark.put(position, 1);
+                                }
+                            }
+                            item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            change.put(position, "D");
+                            img.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+
                 final String value = change.get(position);
                 if (value == null) {
                     item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                     item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                     item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                    if (exam_mode)
+                        item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                     img.setVisibility(View.INVISIBLE);
                 } else {
                     switch (value) {
@@ -128,6 +181,8 @@ public class SelectionActivity extends BaseActivity {
                                 img.setVisibility(View.VISIBLE);
                                 item1.setBackground(getResources().getDrawable(R.drawable.bg_answerwrong));
                             }
+                            if (exam_mode)
+                                item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             break;
@@ -141,6 +196,8 @@ public class SelectionActivity extends BaseActivity {
                                 img.setVisibility(View.VISIBLE);
                                 item2.setBackground(getResources().getDrawable(R.drawable.bg_answerwrong));
                             }
+                            if (exam_mode)
+                                item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             break;
@@ -154,6 +211,22 @@ public class SelectionActivity extends BaseActivity {
                                 img.setVisibility(View.VISIBLE);
                                 item3.setBackground(getResources().getDrawable(R.drawable.bg_answerwrong));
                             }
+                            if (exam_mode)
+                                item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            break;
+                        case "D":
+                            if ("D".equals(list.get(position).corAns)) {
+                                img.setImageResource(R.drawable.icon_gameright);
+                                img.setVisibility(View.VISIBLE);
+                                item4.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
+                            } else {
+                                img.setImageResource(R.drawable.icon_gamewrong);
+                                img.setVisibility(View.VISIBLE);
+                                item4.setBackground(getResources().getDrawable(R.drawable.bg_answerwrong));
+                            }
+                            item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             break;
@@ -165,6 +238,7 @@ public class SelectionActivity extends BaseActivity {
                     img.setVisibility(View.VISIBLE);
                 }
                 //item1.setOnClickListener(new View.OnClickListener() {
+                final PercentRelativeLayout finalItem = item4;
                 rip1.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -186,6 +260,8 @@ public class SelectionActivity extends BaseActivity {
                                 mark.put(position, 1);
                             }
                         }
+                        if (exam_mode)
+                            finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         img.setVisibility(View.VISIBLE);
@@ -215,6 +291,8 @@ public class SelectionActivity extends BaseActivity {
                                 mark.put(position, 1);
                             }
                         }
+                        if (exam_mode)
+                            finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         change.put(position, "B");
@@ -244,6 +322,8 @@ public class SelectionActivity extends BaseActivity {
                                 mark.put(position, 1);
                             }
                         }
+                        if (exam_mode)
+                            finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         change.put(position, "C");
