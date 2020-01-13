@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -30,6 +31,8 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.qq.e.ads.banner.ADSize;
 import com.qq.e.ads.banner.AbstractBannerADListener;
 import com.qq.e.ads.banner.BannerView;
+import com.qq.e.ads.banner2.UnifiedBannerADListener;
+import com.qq.e.ads.banner2.UnifiedBannerView;
 import com.qq.e.comm.util.AdError;
 import com.rowsen.mytools.BaseActivity;
 import com.rowsen.mytools.SnapUpCountDownTimerView;
@@ -43,11 +46,12 @@ import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
 
+import static android.view.View.GONE;
 import static com.rowsen.examfinal.Myapp.GDT_APPID;
 
 public class ExamActivity extends BaseActivity {
     //Mi横幅广告ID
-    static final String BANNER_POS_ID = "19684d52bf8ab255e13f387b3dff4f41";//802e356f1726f9ff39c69308bfd6f06a";
+    static final String Mi_posId = "19684d52bf8ab255e13f387b3dff4f41";//802e356f1726f9ff39c69308bfd6f06a";
     ListView exam_listView;
     ListView wrong_listView;
     SnapUpCountDownTimerView clock;
@@ -63,25 +67,39 @@ public class ExamActivity extends BaseActivity {
     TextView title;
     List source;
     BaseAdapter exam_list_adapter;
-    IAdWorker mBannerAd;
+
     ImageView tmall;
     ViewGroup mi_banner;
     ViewGroup GDT_banner;
     TextView note;
+    //老版GDT
     BannerView bv;
+    //GDT -banner 2.0
+    UnifiedBannerView banner;
     boolean flag = true;//线程结束标记,用来防止oom
     Myapp app = Myapp.getInstance();
-
+    //Mi
+    IAdWorker mBannerAd;
     //浏览错题状态:浏览错题true
     boolean check_wrong_state = false;
     //广告点击状态
     boolean click_success_state = false;
     //gdt横幅广告ID
-    String posId = "3080059597263454";
+    //String GDT_posId = "3080059597263454";
+    //gdt横幅2.0广告ID
+    String GDT_posId = "4050869827503147";
 
     //广点通测试bannerID
     //String BannerPosID = "9079537218417626401";
+
+    //穿山甲广告
+/*    ViewGroup TT_banner;
+    String TT_posId = "935909785";
+    TTAdNative mTTAdNative;
+    TTNativeExpressAd mTTAd;*/
+
     boolean exam_mode;
+
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -90,7 +108,8 @@ public class ExamActivity extends BaseActivity {
             getSupportActionBar().hide();
         }
         setContentView(R.layout.activity_exam);
-        Toasty.error(this,"点击广告获得完整的考试体验！").show();
+        Toasty.error(this, "点击广告获得完整的考试体验！").show();
+        //TT_banner = findViewById(R.id.exam_TT_banner);
         GDT_banner = findViewById(R.id.GDT_banner);
         mi_banner = findViewById(R.id.mi_banner);
         tmall = findViewById(R.id.tmall);
@@ -114,8 +133,8 @@ public class ExamActivity extends BaseActivity {
         judgeNum = 5;
 
         //显示横幅广告
-        banner_show();
-        //banner_GDT();
+        //banner_TT();
+        banner_GDT2();
         title = findViewById(R.id.title);
         clock = findViewById(R.id.countDown);
         clock.setTime(1, 30, 0);
@@ -196,26 +215,30 @@ public class ExamActivity extends BaseActivity {
                         item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                        if(exam_mode) item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                        if (exam_mode)
+                            item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                     } else {
                         switch (uAns) {
                             case "A":
                                 item1.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                                 item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                                if(exam_mode) item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                if (exam_mode)
+                                    item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 break;
                             case "B":
                                 item2.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                                 item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                                if(exam_mode) item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                if (exam_mode)
+                                    item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 break;
                             case "C":
                                 item3.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                                 item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                                if(exam_mode) item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                if (exam_mode)
+                                    item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 break;
                             case "D":
                                 item4.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
@@ -236,7 +259,8 @@ public class ExamActivity extends BaseActivity {
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                             item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                            if(exam_mode) finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            if (exam_mode)
+                                finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         }
                     });
                     // item2.setOnClickListener(new View.OnClickListener() {
@@ -247,7 +271,8 @@ public class ExamActivity extends BaseActivity {
                             item2.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                            if(exam_mode) finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            if (exam_mode)
+                                finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         }
                     });
                     // item3.setOnClickListener(new View.OnClickListener() {
@@ -258,10 +283,11 @@ public class ExamActivity extends BaseActivity {
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                             item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                            if(exam_mode) finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            if (exam_mode)
+                                finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         }
                     });
-                    if(exam_mode){
+                    if (exam_mode) {
                         rip4.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -347,8 +373,8 @@ public class ExamActivity extends BaseActivity {
                 View v;
                 Object ob = wrongList.get(i);
                 if (ob instanceof SelectionBean) {
-                    if(exam_mode)
-                    v = View.inflate(ExamActivity.this, R.layout.item_selection2, null);
+                    if (exam_mode)
+                        v = View.inflate(ExamActivity.this, R.layout.item_selection2, null);
                     else v = View.inflate(ExamActivity.this, R.layout.item_selection, null);
                     TextView index = v.findViewById(R.id.tv_question_index);
                     TextView ques = v.findViewById(R.id.tv_question);
@@ -366,7 +392,7 @@ public class ExamActivity extends BaseActivity {
                     ans1.setText(((SelectionBean) ob).answer1);
                     ans2.setText(((SelectionBean) ob).answer2);
                     ans3.setText(((SelectionBean) ob).answer3);
-                    if(exam_mode){
+                    if (exam_mode) {
                         ans4 = v.findViewById(R.id.tv_answer4);
                         item4 = v.findViewById(R.id.rl_answer4);
                         ans4.setText(((SelectionBean) ob).answer4);
@@ -557,12 +583,87 @@ public class ExamActivity extends BaseActivity {
         flag = false;
     }
 
-    //显示横幅广告
-    void banner_show() {
-/*        new Thread() {
+    //穿山甲横幅
+/*
+    private void banner_TT() {
+        mTTAdNative = app.ttAdManager.createAdNative(this);
+        TT_banner.removeAllViews();
+        float expressViewWidth = 350;
+        float expressViewHeight = 350;
+        try {
+            expressViewWidth = getWindowManager().getDefaultDisplay().getWidth();
+            expressViewHeight = 60;
+        } catch (Exception e) {
+            expressViewHeight = 0; //高度设置为0,则高度会自适应
+        }
+        //step4:创建广告请求参数AdSlot,具体参数含义参考文档
+        AdSlot adSlot = new AdSlot.Builder()
+                .setCodeId(TT_posId) //广告位id
+                .setSupportDeepLink(true)
+                .setAdCount(3) //请求广告数量为1到3条
+                .setExpressViewAcceptedSize(expressViewWidth, expressViewHeight) //期望模板广告view的size,单位dp
+                .setImageAcceptedSize(640, 320)//这个参数设置即可，不影响模板广告的size
+                .build();
+        //step5:请求广告，对请求回调的广告作渲染处理
+        mTTAdNative.loadBannerExpressAd(adSlot, new TTAdNative.NativeExpressAdListener() {
             @Override
-            public void run() {
-                while (!MimoSdk.isSdkReady()) ;*/
+            public void onError(int code, String message) {
+                Log.e("load error : ", code + ", " + message);
+                TT_banner.removeAllViews();
+                banner_GDT();
+            }
+
+            @Override
+            public void onNativeExpressAdLoad(List<TTNativeExpressAd> ads) {
+                if (ads == null || ads.size() == 0) {
+                    return;
+                }
+                mTTAd = ads.get(0);
+                mTTAd.setSlideIntervalTime(30 * 1000);
+                bindAdListener(mTTAd);
+                mTTAd.render();
+            }
+        });
+    }
+
+    private void bindAdListener(TTNativeExpressAd ad) {
+        ad.setExpressInteractionListener(new TTNativeExpressAd.ExpressAdInteractionListener() {
+            @Override
+            public void onAdClicked(View view, int type) {
+                click_success();
+            }
+
+            @Override
+            public void onAdShow(View view, int type) {
+*/
+/*                tmall.setVisibility(View.GONE);
+                mi_banner.setVisibility(View.GONE);
+                GDT_banner.setVisibility(View.GONE);
+                TT_banner.setVisibility(View.VISIBLE);
+                note.setVisibility(View.VISIBLE);*//*
+
+            }
+
+            @Override
+            public void onRenderFail(View view, String msg, int code) {
+                Log.e("ExpressView", "render fail:");
+                TT_banner.removeAllViews();
+                banner_GDT();
+            }
+
+            @Override
+            public void onRenderSuccess(View view, float width, float height) {
+                //Log.e("ExpressView","render suc:");
+                TT_banner.removeAllViews();
+                TT_banner.addView(view);
+                TT_banner.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+*/
+
+    //显示横幅广告
+    void banner_Mi() {
         try {
             mBannerAd = AdWorkerFactory.getAdWorker(ExamActivity.this, mi_banner, new MimoAdListener() {
                 @Override
@@ -578,19 +679,20 @@ public class ExamActivity extends BaseActivity {
 
                 @Override
                 public void onAdDismissed() {
-                    click_success();
+                    banner_GDT2();
                 }
 
                 @Override
                 public void onAdFailed(String s) {
                     //Log.e("失败", s);
-                    banner_GDT();
+                    show_ali();
                 }
 
                 @Override
                 public void onAdLoaded(int size) {
                     note.setVisibility(View.VISIBLE);
                     mi_banner.setVisibility(View.VISIBLE);
+                    //TT_banner.setVisibility(View.GONE);
                     tmall.setVisibility(View.GONE);
                     GDT_banner.setVisibility(View.GONE);
                 }
@@ -599,22 +701,16 @@ public class ExamActivity extends BaseActivity {
                 public void onStimulateSuccess() {
                 }
             }, AdType.AD_BANNER);
-            mBannerAd.loadAndShow(BANNER_POS_ID);
+            mBannerAd.loadAndShow(Mi_posId);
         } catch (Exception e) {
             e.printStackTrace();
-            banner_GDT();
+            show_ali();
         }
-/*            }
-        }.start();*/
     }
 
     //显示GDT横幅广告
     void banner_GDT() {
-        /*mi_banner.setVisibility(View.GONE);
-        tmall.setVisibility(View.GONE);
-        note.setVisibility(View.VISIBLE);
-        GDT_banner.setVisibility(View.VISIBLE);*/
-        bv = new BannerView(this, ADSize.BANNER, GDT_APPID, posId);
+        bv = new BannerView(this, ADSize.BANNER, GDT_APPID, GDT_posId);
         // 注意：如果开发者的banner不是始终展示在屏幕中的话，请关闭自动刷新，否则将导致曝光率过低。
         // 并且应该自行处理：当banner广告区域出现在屏幕后，再手动loadAD。
         bv.setRefresh(30);
@@ -629,7 +725,7 @@ public class ExamActivity extends BaseActivity {
             @Override
             public void onADClosed() {
                 super.onADClosed();
-                click_success();
+                banner_Mi();
             }
 
             @Override
@@ -638,24 +734,90 @@ public class ExamActivity extends BaseActivity {
                         "AD_DEMO",
                         String.format("Banner onNoAD，eCode = %d, eMsg = %s", error.getErrorCode(),
                                 error.getErrorMsg()));
-                show_ali();
+                banner_Mi();
             }
 
             @Override
             public void onADReceiv() {
                 Log.i("AD_DEMO", "ONBannerReceive");
-                note.setVisibility(View.VISIBLE);
-                mi_banner.setVisibility(View.GONE);
-                tmall.setVisibility(View.GONE);
-                GDT_banner.setVisibility(View.VISIBLE);
+                if (!click_success_state) {
+                    note.setVisibility(View.VISIBLE);
+                    //TT_banner.setVisibility(View.GONE);
+                    mi_banner.setVisibility(View.GONE);
+                    tmall.setVisibility(View.GONE);
+                    GDT_banner.setVisibility(View.VISIBLE);
+                }
             }
         });
         GDT_banner.addView(bv);
         bv.loadAD();
     }
 
+    public void banner_GDT2() {
+        banner = new UnifiedBannerView(this, Myapp.GDT_APPID, GDT_posId, new UnifiedBannerADListener() {
+            @Override
+            public void onNoAD(AdError adError) {
+                Log.i("AD_DEMO", "BannerNoAD，eCode=" + adError.getErrorCode());
+                banner_Mi();
+            }
+
+            @Override
+            public void onADReceive() {
+                Log.i("AD_DEMO", "ONBannerReceive");
+                if (!click_success_state) {
+                    tmall.setVisibility(GONE);
+                    mi_banner.setVisibility(GONE);
+                    note.setVisibility(View.VISIBLE);
+                    GDT_banner.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onADExposure() {
+
+            }
+
+            @Override
+            public void onADClosed() {
+                banner_Mi();
+            }
+
+            @Override
+            public void onADClicked() {
+                click_success();
+            }
+
+            @Override
+            public void onADLeftApplication() {
+
+            }
+
+            @Override
+            public void onADOpenOverlay() {
+
+            }
+
+            @Override
+            public void onADCloseOverlay() {
+
+            }
+        });
+        //设置广告轮播时间，为0或30~120之间的数字，单位为s,0标识不自动轮播
+        banner.setRefresh(30);
+
+        GDT_banner.addView(banner, getUnifiedBannerLayoutParams());
+        /* 发起广告请求，收到广告数据后会展示数据     */
+        banner.loadAD();
+    }
+
+    private FrameLayout.LayoutParams getUnifiedBannerLayoutParams() {
+        int width = getWindowManager().getDefaultDisplay().getWidth();
+        return new FrameLayout.LayoutParams(width, Math.round(width / 6.4F));
+    }
+
     //备份阿里妈妈推广
     void show_ali() {
+        //TT_banner.setVisibility(View.GONE);
         mi_banner.setVisibility(View.GONE);
         GDT_banner.setVisibility(View.GONE);
         note.setVisibility(View.VISIBLE);
@@ -690,6 +852,7 @@ public class ExamActivity extends BaseActivity {
     //清除所有广告栏
     void clearAD() {
         tmall.setVisibility(View.GONE);
+        //TT_banner.setVisibility(View.GONE);
         mi_banner.setVisibility(View.GONE);
         GDT_banner.setVisibility(View.GONE);
         note.setVisibility(View.GONE);

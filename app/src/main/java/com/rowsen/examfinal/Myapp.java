@@ -2,15 +2,8 @@ package com.rowsen.examfinal;
 
 import android.app.Activity;
 import android.app.Application;
-import android.util.Log;
 
 import com.miui.zeus.mimo.sdk.MimoSdk;
-import com.tencent.stat.MtaSDkException;
-import com.tencent.stat.StatConfig;
-import com.tencent.stat.StatCrashCallback;
-import com.tencent.stat.StatCrashReporter;
-import com.tencent.stat.StatReportStrategy;
-import com.tencent.stat.StatService;
 
 import java.util.ArrayList;
 
@@ -30,10 +23,17 @@ public class Myapp extends Application {
     static final String APP_KEY ="fake_app_key";*/
 
     //广点通APPID
-    static final String GDT_APPID = "1108173909";
+    public static final String GDT_APPID = "1108173909";
 
     //广点通测试APPID
     //static final String GTD_APPID = "1101152570";
+
+    //穿山甲
+/*    static final String TT_APPID = "5035909";
+    public TTAdManager ttAdManager;*/
+
+    //穿山甲测试ID
+    //static final String TT_APPID = "5001121";
     @Override
     public void onCreate() {
         super.onCreate();
@@ -43,12 +43,12 @@ public class Myapp extends Application {
         allList = new ArrayList();
         instance = this;
         MimoSdk.setEnableUpdate(false);
-        // MimoSdk.setDebugOn();
+        //MimoSdk.setDebugOn();
         // 正式上线时候务必关闭stage
-        // MimoSdk.setStageOn();
-        MimoSdk.init(this, APP_ID, APP_KEY, APP_TOKEN);
+        //MimoSdk.setStageOn();
+        MimoSdk.init(this, APP_ID, APP_KEY, APP_TOKEN, null);
         //初始化腾讯移动应用分析平台
-        StatService.setContext(this);
+/*        StatService.setContext(this);
         initMTAConfig(true);
         String appkey = "Aqc1108173909";
         // 初始化并启动MTA
@@ -61,14 +61,30 @@ public class Myapp extends Application {
         } catch (MtaSDkException e) {
             // MTA初始化失败
             Log.e("错误", "MTA start failed.");
-        }
+        }*/
+
+        //穿山甲初始化
+        /*ttAdManager = TTAdSdk.init(this,
+                new TTAdConfig.Builder()
+                        .appId(TT_APPID)
+                        .useTextureView(false) //使用TextureView控件播放视频,默认为SurfaceView,当有SurfaceView冲突的场景，可以使用TextureView
+                        .appName("电工复审考试")
+                        .titleBarTheme(TTAdConstant.TITLE_BAR_THEME_DARK)
+                        .allowShowNotify(true) //是否允许sdk展示通知栏提示
+                        .allowShowPageWhenScreenLock(true) //是否在锁屏场景支持展示广告落地页
+                        .debug(true) //测试阶段打开，可以通过日志排查问题，上线时去除该调用
+                        .directDownloadNetworkType(TTAdConstant.NETWORK_STATE_WIFI, TTAdConstant.NETWORK_STATE_3G) //允许直接下载的网络状态集合
+                        .supportMultiProcess(false) //是否支持多进程，true支持
+                        //.httpStack(new MyOkStack3())//自定义网络库，demo中给出了okhttp3版本的样例，其余请自行开发或者咨询工作人员。
+                        .build());*/
+
     }
 
     public static Myapp getInstance() {
         return instance;
     }
 
-    private void initMTAConfig(boolean isDebugMode) {
+/*    private void initMTAConfig(boolean isDebugMode) {
 
         if (isDebugMode) { // ����ʱ�������õĿ���״̬
             // �鿴MTA��־���ϱ���������
@@ -116,14 +132,14 @@ public class Myapp extends Application {
 
             @Override
             public void onJniNativeCrash(String tombstoneMsg) {
-                Log.d("Test", "Native crash happened, tombstone message:" +tombstoneMsg);
+                Log.d("Test", "Native crash happened, tombstone message:" + tombstoneMsg);
             }
 
             @Override
             public void onJavaCrash(Thread thread, Throwable throwable) {
-                Log.d("Test", "Java crash happened, thread: " + thread + ",Throwable:" +throwable.toString());
+                Log.d("Test", "Java crash happened, thread: " + thread + ",Throwable:" + throwable.toString());
             }
         });
 
-    }
+    }*/
 }

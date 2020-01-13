@@ -129,15 +129,19 @@
             android:id="@+id/type_mi_banner"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:visibility="gone"
             android:layout_gravity="top">
         </FrameLayout>
         <FrameLayout
             android:id="@+id/type_GDT_banner"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:visibility="gone"
             android:layout_gravity="top">
         </FrameLayout>
+<!--        <FrameLayout
+            android:id="@+id/tt_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top">
+        </FrameLayout>-->
     </FrameLayout>
 </RelativeLayout>

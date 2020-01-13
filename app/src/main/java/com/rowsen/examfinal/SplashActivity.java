@@ -23,10 +23,8 @@ import com.qq.e.comm.util.AdError;
 import com.roger.match.library.MatchTextView;
 import com.rowsen.mytools.BaseActivity;
 import com.rowsen.mytools.PermissionListener;
-import com.rowsen.mytools.Tools;
 import com.xiaomi.ad.common.pojo.AdType;
 
-import java.io.IOException;
 import java.util.List;
 
 import es.dmoral.toasty.Toasty;
@@ -36,6 +34,7 @@ import static com.rowsen.examfinal.Myapp.GDT_APPID;
 
 
 public class SplashActivity extends BaseActivity {
+    Myapp app;
     MatchTextView matchTextView;
     MatchTextView matchTextView2;
     Handler handler;
@@ -58,6 +57,13 @@ public class SplashActivity extends BaseActivity {
 
     //跳转状态
     boolean jump_state = false;
+
+    //穿山甲广告平台
+/*
+    String TT_SplashID = "835909200";
+    private TTAdNative mTTAdNative;
+    private FrameLayout tt_container;
+*/
 
     @Override
     public void onBackPressed() {
@@ -88,9 +94,11 @@ public class SplashActivity extends BaseActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
         setContentView(R.layout.activity_splash);
+        app = Myapp.getInstance();
         logo_pic = findViewById(R.id.logo_pic);
         mi_container = findViewById(R.id.mi_container);
         GDT_container = findViewById(R.id.GDT_container);
+        //tt_container = findViewById(R.id.tt_container);
         logo = findViewById(R.id.logo);
         matchTextView = findViewById(R.id.match);
         matchTextView2 = findViewById(R.id.match2);
@@ -100,8 +108,8 @@ public class SplashActivity extends BaseActivity {
                 super.handleMessage(msg);
                 switch (msg.what) {
                     case 2:
-                        if(matchTextView!=null)matchTextView.hide();
-                        if(matchTextView2!=null)matchTextView2.hide();
+                        if (matchTextView != null) matchTextView.hide();
+                        if (matchTextView2 != null) matchTextView2.hide();
                         sendEmptyMessageDelayed(3, 1080);
                         break;
                     case 3:
@@ -120,10 +128,11 @@ public class SplashActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT >= 23)
             grant(permissions);
             //小于23的版本直接干活
-        else show_ad();
+        else
+            //miSplashAD();
+            // ttSplashAD();
+            gdtSplashAD();
     }
-
-
 
 
     //授权失败或异常递归授权
@@ -132,7 +141,9 @@ public class SplashActivity extends BaseActivity {
             //授权成功
             @Override
             public void onGranted() {
-                show_ad();
+                //ttSplashAD();
+                gdtSplashAD();
+                //miSplashAD();
             }
 
             //授权失败
@@ -150,12 +161,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     //显示广告
-    void show_ad() {
-/*        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                while (!MimoSdk.isSdkReady()) ;*/
+    void miSplashAD() {
         try {
             mWorker = AdWorkerFactory.getAdWorker(SplashActivity.this, mi_container, new MimoAdListener() {
                 @Override
@@ -163,12 +169,15 @@ public class SplashActivity extends BaseActivity {
                     // 开屏广告展示
                     //Log.d("展示", "onAdPresent");
                     logo_pic.setVisibility(View.GONE);
+                    //tt_container.setVisibility(GONE);
+                    GDT_container.setVisibility(GONE);
                 }
 
                 @Override
                 public void onAdClick() {
                     //用户点击了开屏广告
                     //Log.d("点击", "onAdClick");
+                    if (!jump_state) jump();
                 }
 
                 @Override
@@ -181,12 +190,15 @@ public class SplashActivity extends BaseActivity {
                 @Override
                 public void onAdFailed(String s) {
                     Log.e("失败", "ad fail message : " + s);
-                    fetchSplashAD();
+                    //gdtSplashAD();
+                    logo_show();
                 }
 
                 @Override
                 public void onAdLoaded(int size) {
                     logo_pic.setVisibility(View.GONE);
+                    //tt_container.setVisibility(GONE);
+                    GDT_container.setVisibility(GONE);
                 }
 
                 @Override
@@ -196,10 +208,9 @@ public class SplashActivity extends BaseActivity {
             mWorker.loadAndShow(POSITION_ID);
         } catch (Exception e) {
             e.printStackTrace();
-            fetchSplashAD();
+            //gdtSplashAD();
+            logo_show();
         }
-/*            }
-        }.start();*/
     }
 
     //GTD广告
@@ -210,13 +221,13 @@ public class SplashActivity extends BaseActivity {
      * @param adContainer     展示广告的大容器
      * @param skipContainer   自定义的跳过按钮：传入该 view 给 SDK 后，SDK 会自动给它绑定点击跳过事件。SkipView 的样式可以由开发者自由定制，其尺寸限制请参考 activity_splash.xml 或下面的注意事项。
      * @param appId           应用 ID
-     * @param posId           广告位 ID
+     * @param GDT_posId           广告位 ID
      * @param adListener      广告状态监听器
      * @param fetchDelay      拉取广告的超时时长：即开屏广告从请求到展示所花的最大时长（并不是指广告曝光时长）取值范围[3000, 5000]，设为0表示使用广点通 SDK 默认的超时时长。
      */
-    private void fetchSplashAD() {
+    private void gdtSplashAD() {
         //GDT_container.setVisibility(View.VISIBLE);
-        splashAD = new SplashAD(this, GDT_container, null, GDT_APPID, GTD_SplashID, new SplashADListener() {
+        splashAD = new SplashAD(this, null, GDT_APPID, GTD_SplashID, new SplashADListener() {
             @Override
             public void onADDismissed() {
                 if (!jump_state) jump();
@@ -224,12 +235,14 @@ public class SplashActivity extends BaseActivity {
 
             @Override
             public void onNoAD(AdError adError) {
-                logo_show();
+                //logo_show();
+                miSplashAD();
             }
 
             @Override
             public void onADPresent() {
                 logo_pic.setVisibility(GONE);
+                //tt_container.setVisibility(GONE);
             }
 
             @Override
@@ -247,7 +260,8 @@ public class SplashActivity extends BaseActivity {
             public void onADExposure() {
 
             }
-        }, 3000);
+        }, 3000, null);
+        splashAD.fetchAndShowIn(GDT_container);
     }
 
     //广告拉取失败或异常时显示的界面
@@ -280,5 +294,134 @@ public class SplashActivity extends BaseActivity {
         startActivity(new Intent(SplashActivity.this, MainActivity.class));
         finish();
     }
+
+    //加载只穿山甲广告
+   /* void ttSplashAD() {
+        mTTAdNative = app.ttAdManager.createAdNative(this);
+        //step3:创建开屏广告请求参数AdSlot,具体参数含义参考文档
+        AdSlot adSlot = new AdSlot.Builder()
+                .setCodeId(TT_SplashID)
+                .setSupportDeepLink(true)
+                .setImageAcceptedSize(1080, 1920)
+                .build();
+        //step4:请求广告，调用开屏广告异步请求接口，对请求回调的广告作渲染处理
+        mTTAdNative.loadSplashAd(adSlot, new TTAdNative.SplashAdListener() {
+            @Override
+            @MainThread
+            public void onError(int code, String message) {
+                Log.e("error", message);
+                gdtSplashAD();
+                *//*mHasLoaded = true;
+                showToast(message);
+                goToMainActivity();*//*
+            }
+
+            @Override
+            @MainThread
+            public void onTimeout() {
+                Log.e("error", "开屏广告加载超时");
+                gdtSplashAD();
+               *//* mHasLoaded = true;
+                showToast("开屏广告加载超时");
+                goToMainActivity();*//*
+            }
+
+            @Override
+            @MainThread
+            public void onSplashAdLoad(TTSplashAd ad) {
+                Log.d("error", "开屏广告请求成功");
+                logo_pic.setVisibility(View.GONE);
+               *//* mHasLoaded = true;
+                mHandler.removeCallbacksAndMessages(null);*//*
+                if (ad == null) {
+                    return;
+                }
+                //获取SplashView
+                View view = ad.getSplashView();
+                if (view != null) {
+                    tt_container.removeAllViews();
+                    //把SplashView 添加到ViewGroup中,注意开屏广告view：width >=70%屏幕宽；height >=50%屏幕高
+                    tt_container.addView(view);
+                    //设置不开启开屏广告倒计时功能以及不显示跳过按钮,如果这么设置，您需要自定义倒计时逻辑
+                    //ad.setNotAllowSdkCountdown();
+                } else {
+                    *//*goToMainActivity();*//*
+                }
+
+                //设置SplashView的交互监听器
+                ad.setSplashInteractionListener(new TTSplashAd.AdInteractionListener() {
+                    @Override
+                    public void onAdClicked(View view, int type) {
+                        Log.d("message", "onAdClicked");
+                        if (!jump_state) jump();
+                    }
+
+                    @Override
+                    public void onAdShow(View view, int type) {
+                        Log.d("message", "onAdShow");
+                        logo_pic.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAdSkip() {
+                        Log.d("message", "onAdSkip");
+                        if (!jump_state) jump();
+                       *//* showToast("开屏广告跳过");
+                        goToMainActivity();*//*
+
+                    }
+
+                    @Override
+                    public void onAdTimeOver() {
+                        Log.d("message", "onAdTimeOver");
+                        if (!jump_state) jump();
+                        *//*showToast("开屏广告倒计时结束");
+                        goToMainActivity();*//*
+                    }
+                });
+                if (ad.getInteractionType() == TTAdConstant.INTERACTION_TYPE_DOWNLOAD) {
+                    ad.setDownloadListener(new TTAppDownloadListener() {
+                        boolean hasShow = false;
+
+                        @Override
+                        public void onIdle() {
+
+                        }
+
+                        @Override
+                        public void onDownloadActive(long totalBytes, long currBytes, String fileName, String appName) {
+                            if (!hasShow) {
+                                //showToast("下载中...");
+                                hasShow = true;
+                            }
+                        }
+
+                        @Override
+                        public void onDownloadPaused(long totalBytes, long currBytes, String fileName, String appName) {
+                            //showToast("下载暂停...");
+
+                        }
+
+                        @Override
+                        public void onDownloadFailed(long totalBytes, long currBytes, String fileName, String appName) {
+                            //showToast("下载失败...");
+
+                        }
+
+                        @Override
+                        public void onDownloadFinished(long totalBytes, String fileName, String appName) {
+
+                        }
+
+                        @Override
+                        public void onInstalled(String fileName, String appName) {
+
+                        }
+                    });
+                }
+            }
+        }, 5000);
+
+    }*/
 
 }

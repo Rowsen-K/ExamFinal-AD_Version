@@ -7,8 +7,8 @@ android {
         applicationId "com.rowsen.examfinal"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 91
-        versionName '9.1'
+        versionCode 92
+        versionName '9.2'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -41,5 +41,6 @@ dependencies {
     implementation project(':ViewAnimation')
     implementation project(':grav')
     implementation project(':MatchView')
+    /*implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.6'*/
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
 }

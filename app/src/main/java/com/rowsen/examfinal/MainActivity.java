@@ -6,7 +6,6 @@ import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -16,10 +15,7 @@ import com.dreamlive.hotimglibrary.entity.HotArea;
 import com.dreamlive.hotimglibrary.utils.FileUtils;
 import com.dreamlive.hotimglibrary.view.HotClickView;
 import com.github.glomadrian.grav.GravView;
-import com.qq.e.ads.banner.ADSize;
-import com.qq.e.ads.banner.AbstractBannerADListener;
-import com.qq.e.ads.banner.BannerView;
-import com.qq.e.comm.util.AdError;
+import com.rowsen.mytools.BannerAD;
 import com.rowsen.mytools.BaseActivity;
 import com.rowsen.mytools.Tools;
 
@@ -28,18 +24,26 @@ import java.io.InputStream;
 
 import es.dmoral.toasty.Toasty;
 
-import static com.rowsen.examfinal.Myapp.GDT_APPID;
-
 public class MainActivity extends BaseActivity {
     HotClickView mHotView;
     String exam_type;
     GravView grav;
     FrameLayout type_select;
     ViewGroup GDT_banner;
+    ViewGroup Mi_banner;
     Myapp app = Myapp.getInstance();
+    //穿山甲广告
+/*    ViewGroup TT_banner;
+    String TT_posId = "935909648";*/
+    /*    TTAdNative mTTAdNative;
+        TTNativeExpressAd mTTAd;*/
     //gdt横幅广告ID
-    String posId = "3080059597263454";
-    BannerView bv;
+    String GDT_posId = "2050594035277672";
+    //BannerView bv;
+    //Mi横幅ID
+    String Mi_posId = "9b45afa5ea4decaaecb0aaad06de100c";
+    //static final String Mi_posId = "19684d52bf8ab255e13f387b3dff4f41";
+    BannerAD bannerAD;
 
     @Override
     public void onBackPressed() {
@@ -52,6 +56,7 @@ public class MainActivity extends BaseActivity {
         grav = null;
         app = null;
         mHotView = null;
+        bannerAD = null;
         for (Activity act : Myapp.activitys) {
             if (act != null)
                 act.finish();
@@ -69,10 +74,17 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
         grav = findViewById(R.id.grav);
         type_select = findViewById(R.id.type_select);
+        //TT_banner = findViewById(R.id.tt_banner);
         GDT_banner = findViewById(R.id.type_GDT_banner);
+        Mi_banner = findViewById(R.id.type_mi_banner);
         initall();
         initDatas();
-        banner_GDT();
+        //banner_GDT();
+        //banner_TT(TT_posId);
+        //bannerAD = new BannerAD();
+        bannerAD = new BannerAD(this, GDT_posId, GDT_banner, Mi_posId, Mi_banner);
+        bannerAD.banner_GDT2(this, GDT_banner);
+        //bannerAD.banner_Mi(Mi_posId);
         // 4、 设置监听事件
         mHotView.setOnClickListener(new HotClickView.OnClickListener() {
             @Override
@@ -213,8 +225,8 @@ public class MainActivity extends BaseActivity {
                     Myapp.selectionList.clear();
                     Myapp.judgeList.clear();
                     Myapp.allList.clear();
-                    Tools.file2list(getAssets().open(exam_type + "selection.txt"), Myapp.selectionList,mode);
-                    Tools.file2list(getAssets().open(exam_type + "judge.txt"), Myapp.judgeList,mode);
+                    Tools.file2list(getAssets().open(exam_type + "selection.txt"), Myapp.selectionList, mode);
+                    Tools.file2list(getAssets().open(exam_type + "judge.txt"), Myapp.judgeList, mode);
                     Myapp.allList.addAll(Myapp.selectionList);
                     Myapp.allList.addAll(Myapp.judgeList);
                     //Tools.list2xml(Myapp.allList, new File(getFilesDir().getPath(), "Exam.xml"));
@@ -229,19 +241,15 @@ public class MainActivity extends BaseActivity {
     public void exam_select(View view) {
         exam_type = ((TextView) view).getText().toString();
         if ("上岗证".equals(exam_type))
-            readXml(exam_type,false);
-        else readXml(exam_type,true);
+            readXml(exam_type, false);
+        else readXml(exam_type, true);
         type_select.setVisibility(View.GONE);
-        Toasty.success(this,exam_type).show();
+        Toasty.success(this, exam_type).show();
     }
 
     //显示GDT横幅广告
-    void banner_GDT() {
-        /*mi_banner.setVisibility(View.GONE);
-        tmall.setVisibility(View.GONE);
-        note.setVisibility(View.VISIBLE);
-        GDT_banner.setVisibility(View.VISIBLE);*/
-        bv = new BannerView(this, ADSize.BANNER, GDT_APPID, posId);
+   /* void banner_GDT() {
+        bv = new BannerView(this, ADSize.BANNER, GDT_APPID, GDT_posId);
         // 注意：如果开发者的banner不是始终展示在屏幕中的话，请关闭自动刷新，否则将导致曝光率过低。
         // 并且应该自行处理：当banner广告区域出现在屏幕后，再手动loadAD。
         bv.setRefresh(30);
@@ -267,11 +275,81 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onADReceiv() {
+                TT_banner.setVisibility(View.GONE);
                 GDT_banner.setVisibility(View.VISIBLE);
                 Log.i("AD_DEMO", "ONBannerReceive");
             }
         });
         GDT_banner.addView(bv);
         bv.loadAD();
+    }*/
+
+    //显示穿山甲广告
+/*    private void banner_TT(String codeId) {
+        mTTAdNative = app.ttAdManager.createAdNative(this);
+        TT_banner.removeAllViews();
+        float expressViewWidth = 350;
+        float expressViewHeight = 350;
+        try{
+            expressViewWidth = getWindowManager().getDefaultDisplay().getWidth();
+            expressViewHeight = 60;
+        }catch (Exception e){
+            expressViewHeight = 0; //高度设置为0,则高度会自适应
+        }
+        //step4:创建广告请求参数AdSlot,具体参数含义参考文档
+        AdSlot adSlot = new AdSlot.Builder()
+                .setCodeId(TT_posId) //广告位id
+                .setSupportDeepLink(true)
+                .setAdCount(3) //请求广告数量为1到3条
+                .setExpressViewAcceptedSize(expressViewWidth,expressViewHeight) //期望模板广告view的size,单位dp
+                .setImageAcceptedSize(640,320 )//这个参数设置即可，不影响模板广告的size
+                .build();
+        //step5:请求广告，对请求回调的广告作渲染处理
+        mTTAdNative.loadBannerExpressAd(adSlot, new TTAdNative.NativeExpressAdListener() {
+            @Override
+            public void onError(int code, String message) {
+                Log.e("load error : " , code + ", " + message);
+                TT_banner.removeAllViews();
+                banner_GDT();
+            }
+
+            @Override
+            public void onNativeExpressAdLoad(List<TTNativeExpressAd> ads) {
+                if (ads == null || ads.size() == 0){
+                    return;
+                }
+                mTTAd = ads.get(0);
+                mTTAd.setSlideIntervalTime(30*1000);
+                bindAdListener(mTTAd);
+                mTTAd.render();
+            }
+        });
     }
+
+    private void bindAdListener(TTNativeExpressAd ad) {
+        ad.setExpressInteractionListener(new TTNativeExpressAd.ExpressAdInteractionListener() {
+            @Override
+            public void onAdClicked(View view, int type) {
+
+            }
+
+            @Override
+            public void onAdShow(View view, int type) {
+
+            }
+
+            @Override
+            public void onRenderFail(View view, String msg, int code) {
+                Log.e("ExpressView","render fail:");
+
+            }
+
+            @Override
+            public void onRenderSuccess(View view, float width, float height) {
+                //Log.e("ExpressView","render suc:");
+                TT_banner.removeAllViews();
+                TT_banner.addView(view);
+            }
+        });
+    }*/
 }

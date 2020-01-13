@@ -51,15 +51,20 @@
         </LinearLayout>
     </FrameLayout>
     <FrameLayout
-        android:id="@+id/GDT_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </FrameLayout>
-    <FrameLayout
         android:id="@+id/mi_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </FrameLayout>
+    <FrameLayout
+        android:id="@+id/GDT_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>
+  <!--  <FrameLayout
+        android:id="@+id/tt_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>-->
      <ImageView
          android:id="@+id/logo_pic"
          android:layout_width="match_parent"
