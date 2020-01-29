@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -21,20 +22,19 @@ import com.qq.e.ads.splash.SplashAD;
 import com.qq.e.ads.splash.SplashADListener;
 import com.qq.e.comm.util.AdError;
 import com.roger.match.library.MatchTextView;
+import com.rowsen.SqliteTools.SQLFunction;
 import com.rowsen.mytools.BaseActivity;
 import com.rowsen.mytools.PermissionListener;
 import com.xiaomi.ad.common.pojo.AdType;
 
+import java.io.IOException;
 import java.util.List;
-
-import es.dmoral.toasty.Toasty;
 
 import static android.view.View.GONE;
 import static com.rowsen.examfinal.Myapp.GDT_APPID;
 
 
 public class SplashActivity extends BaseActivity {
-    Myapp app;
     MatchTextView matchTextView;
     MatchTextView matchTextView2;
     Handler handler;
@@ -44,13 +44,17 @@ public class SplashActivity extends BaseActivity {
     ViewGroup logo;
     IAdWorker mWorker;
     public String[] permissions = null;
-    //Mi开屏广告ID
+    //Mi开屏广告ID---通用版本
     private static final String POSITION_ID = "a897ffc9980907b94239cc601e160ce7";
+    //Mi开屏广告ID---华为版本
+    //private static final String POSITION_ID = "983a690f3f742be56e2a107e6cd1363c";
     //Mi测试参数
     //private static final String POSITION_ID ="b373ee903da0c6fc9c9da202df95a500";
 
-    //广点通开屏ID
+    //广点通开屏ID---通用版本
     String GTD_SplashID = "3020360826493817";
+    //广点通开屏ID---华为版本
+    //String GTD_SplashID = "2010394840539862";
     //广点通开屏测试ID
     //String GTD_SplashID = "8863364436303842593";
     SplashAD splashAD;
@@ -65,9 +69,15 @@ public class SplashActivity extends BaseActivity {
     private FrameLayout tt_container;
 */
 
+    /**
+     * 开屏页一定要禁止用户对返回按钮的控制，否则将可能导致用户手动退出了App而广告无法正常曝光和计费
+     */
     @Override
-    public void onBackPressed() {
-        // super.onBackPressed();
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_HOME) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
@@ -94,7 +104,6 @@ public class SplashActivity extends BaseActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
         setContentView(R.layout.activity_splash);
-        app = Myapp.getInstance();
         logo_pic = findViewById(R.id.logo_pic);
         mi_container = findViewById(R.id.mi_container);
         GDT_container = findViewById(R.id.GDT_container);
@@ -107,6 +116,9 @@ public class SplashActivity extends BaseActivity {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 switch (msg.what) {
+                    case 1:
+                        logo_show();
+                        break;
                     case 2:
                         if (matchTextView != null) matchTextView.hide();
                         if (matchTextView2 != null) matchTextView2.hide();
@@ -116,22 +128,21 @@ public class SplashActivity extends BaseActivity {
                         if (!jump_state)
                             jump();
                         break;
-                    case 4:
-                        Toasty.error(SplashActivity.this, "题库读取失败,请重开或重新安装App!").show();
-                        break;
                 }
             }
         };
-        //readXml();
+
         // 如果api >= 23 需要显式申请权限
         permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_PHONE_STATE};
         if (Build.VERSION.SDK_INT >= 23)
             grant(permissions);
             //小于23的版本直接干活
-        else
+        else {
             //miSplashAD();
             // ttSplashAD();
+            copyDB("ElecExam.db");
             gdtSplashAD();
+        }
     }
 
 
@@ -142,6 +153,7 @@ public class SplashActivity extends BaseActivity {
             @Override
             public void onGranted() {
                 //ttSplashAD();
+                copyDB("ElecExam.db");
                 gdtSplashAD();
                 //miSplashAD();
             }
@@ -209,7 +221,7 @@ public class SplashActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
             //gdtSplashAD();
-            logo_show();
+            handler.sendEmptyMessage(1);
         }
     }
 
@@ -293,6 +305,22 @@ public class SplashActivity extends BaseActivity {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         startActivity(new Intent(SplashActivity.this, MainActivity.class));
         finish();
+    }
+
+    //copy数据库
+    void copyDB(final String fileName) {
+        //Log.e("开干","ing");
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                try {
+                    SQLFunction.copyAssetsToDB(SplashActivity.this, fileName, Myapp.version);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     //加载只穿山甲广告

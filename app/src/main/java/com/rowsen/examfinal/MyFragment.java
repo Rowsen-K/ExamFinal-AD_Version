@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,7 @@ public class MyFragment extends Fragment {
     View v;
     int mode;
     BaseAdapter ba;
-    ArrayList list;
+    ArrayList<Bean> list;
 
     public MyFragment() {
         super();
@@ -59,7 +58,7 @@ public class MyFragment extends Fragment {
 
                     @Override
                     public Object getItem(int position) {
-                        return null;
+                        return position;
                     }
 
                     @Override
@@ -73,7 +72,7 @@ public class MyFragment extends Fragment {
                         if (convertView == null) {
                             v = View.inflate(getContext(), R.layout.selection_item_layout, null);
                         } else v = convertView;
-                        SelectionBean sb = ((SelectionBean) list.get(position));
+                        Bean sb = list.get(position);
                         TextView ques;
                         TextView ans1;
                         ques = v.findViewById(R.id.tv_question);
@@ -124,15 +123,19 @@ public class MyFragment extends Fragment {
                         if (convertView == null) {
                             v = View.inflate(getContext(), R.layout.judge_item_layout, null);
                         } else v = convertView;
-                        JudgeBean jb = (JudgeBean) list.get(position);
+                        Bean jb = list.get(position);
                         TextView jques;
                         TextView jans;
                         jques = v.findViewById(R.id.judge_item_qus);
                         jans = v.findViewById(R.id.judge_item_ans);
                         if (jb.flag) v.setBackgroundColor(getResources().getColor(R.color.bg1));
                         else v.setBackgroundColor(getResources().getColor(R.color.zlyellow));
-                        jques.setText(jb.No + "、" + jb.question);
-                        jans.setText(jb.answer);
+                        jques.setText(position + 1 + "、" + jb.question);
+                        jans.setText(jb.corAns);
+                        if ("✔".equals(jb.corAns))
+                            jans.setTextColor(getResources().getColor(R.color.green));
+                        else
+                            jans.setTextColor(getResources().getColor(R.color.colorAccent));
                         return v;
                     }
                 };

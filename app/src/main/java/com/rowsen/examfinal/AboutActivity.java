@@ -30,7 +30,6 @@ import es.dmoral.toasty.Toasty;
 public class AboutActivity extends BaseActivity implements View.OnLongClickListener {
     ImageView img;
     RippleView rip;
-    Myapp app = Myapp.getInstance();
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -44,7 +43,7 @@ public class AboutActivity extends BaseActivity implements View.OnLongClickListe
         rip = findViewById(R.id.rip);
 
         img = findViewById(R.id.img);
-        ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(app);
+        ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(this);
         ImageLoader.getInstance().init(config);
         DisplayImageOptions opt = DisplayImageOptions.createSimple();
         ImageLoader.getInstance().displayImage("drawable://" + R.drawable.about, img, opt);
@@ -91,7 +90,7 @@ public class AboutActivity extends BaseActivity implements View.OnLongClickListe
         intent.setData(uri);
         sendBroadcast(intent);
         // Tools.saveImageToGallery(this,Tools.takeScreenShot(this));
-        Toasty.info(app, "截图已保存请使用微信扫一扫关注,欢迎上报Bug与捐赠!", Toast.LENGTH_LONG).show();
+        Toasty.info(AboutActivity.this, "截图已保存请使用微信扫一扫关注,欢迎上报Bug与捐赠!", Toast.LENGTH_LONG).show();
         try {
             //利用Intent打开微信
             Uri uri1 = Uri.parse("weixin://");

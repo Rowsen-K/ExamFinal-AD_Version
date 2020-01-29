@@ -2,13 +2,13 @@ package com.rowsen.examfinal;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.RequiresApi;
 import android.support.percent.PercentRelativeLayout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +34,7 @@ import com.qq.e.ads.banner.BannerView;
 import com.qq.e.ads.banner2.UnifiedBannerADListener;
 import com.qq.e.ads.banner2.UnifiedBannerView;
 import com.qq.e.comm.util.AdError;
+import com.rowsen.SqliteTools.SQLFunction;
 import com.rowsen.mytools.BaseActivity;
 import com.rowsen.mytools.SnapUpCountDownTimerView;
 import com.rowsen.mytools.Tools;
@@ -41,7 +42,6 @@ import com.xiaomi.ad.common.pojo.AdType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
@@ -50,14 +50,16 @@ import static android.view.View.GONE;
 import static com.rowsen.examfinal.Myapp.GDT_APPID;
 
 public class ExamActivity extends BaseActivity {
-    //Mi横幅广告ID
+    //Mi横幅广告ID---通用版本
     static final String Mi_posId = "19684d52bf8ab255e13f387b3dff4f41";//802e356f1726f9ff39c69308bfd6f06a";
+    //Mi横幅广告ID---华为版本
+    //static final String Mi_posId = "57ea77b8645472fac82f2fc0744b0c0a";
     ListView exam_listView;
     ListView wrong_listView;
     SnapUpCountDownTimerView clock;
-    ArrayList exam;
+    ArrayList<Bean> exam, selList, judList, sel_exam, jud_exam;
     Map<String, String> ansMap;
-    ArrayList wrongList;
+    ArrayList<Bean> wrongList;
     Button get;
     Dialog dialog;
     long startTime;
@@ -65,7 +67,6 @@ public class ExamActivity extends BaseActivity {
     int judgeNum;
     Handler handler;
     TextView title;
-    List source;
     BaseAdapter exam_list_adapter;
 
     ImageView tmall;
@@ -77,7 +78,6 @@ public class ExamActivity extends BaseActivity {
     //GDT -banner 2.0
     UnifiedBannerView banner;
     boolean flag = true;//线程结束标记,用来防止oom
-    Myapp app = Myapp.getInstance();
     //Mi
     IAdWorker mBannerAd;
     //浏览错题状态:浏览错题true
@@ -86,8 +86,10 @@ public class ExamActivity extends BaseActivity {
     boolean click_success_state = false;
     //gdt横幅广告ID
     //String GDT_posId = "3080059597263454";
-    //gdt横幅2.0广告ID
+    //gdt横幅2.0广告ID---通用版本
     String GDT_posId = "4050869827503147";
+    //gdt横幅2.0广告ID---华为版本
+    //String GDT_posId = "9040890800138864";
 
     //广点通测试bannerID
     //String BannerPosID = "9079537218417626401";
@@ -97,8 +99,6 @@ public class ExamActivity extends BaseActivity {
     String TT_posId = "935909785";
     TTAdNative mTTAdNative;
     TTNativeExpressAd mTTAd;*/
-
-    boolean exam_mode;
 
 
     @Override
@@ -113,9 +113,7 @@ public class ExamActivity extends BaseActivity {
         GDT_banner = findViewById(R.id.GDT_banner);
         mi_banner = findViewById(R.id.mi_banner);
         tmall = findViewById(R.id.tmall);
-        if ("上岗证".equals(getIntent().getStringExtra("exam_type")))
-            exam_mode = false;
-        else exam_mode = true;
+
         tmall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,17 +137,24 @@ public class ExamActivity extends BaseActivity {
         clock = findViewById(R.id.countDown);
         clock.setTime(1, 30, 0);
 
-        exam = new ArrayList();
+        exam = new ArrayList<>();
         ansMap = new HashMap<>();
-        source = new ArrayList();
-        source.addAll(Myapp.selectionList);
-        source.addAll(Myapp.judgeList);
-        Tools.get2question(source, exam, selectionNum, judgeNum);
+        sel_exam = new ArrayList<>();
+        jud_exam = new ArrayList<>();
+        selList = SQLFunction.queryType(this, Myapp.exam_table, 1);
+        judList = SQLFunction.queryType(this, Myapp.exam_table, 2);
+        Tools.get2question(selList, sel_exam, selectionNum, 0);
+        Tools.get2question(judList, jud_exam, judgeNum, selectionNum);
+        exam.addAll(sel_exam);
+        exam.addAll(jud_exam);
+
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
                 if (msg.what == 0) get.setVisibility(View.VISIBLE);
+                if (msg.what == 1) //小米广告异常
+                    show_ali();
             }
         };
 
@@ -162,7 +167,7 @@ public class ExamActivity extends BaseActivity {
 
             @Override
             public Object getItem(int position) {
-                return null;
+                return position;
             }
 
             @Override
@@ -173,16 +178,33 @@ public class ExamActivity extends BaseActivity {
             @Override
             public View getView(final int position, View convertView, ViewGroup parent) {
                 View v;
-                Object object = exam.get(position);
+                ImageView ques_img = null;
+                final Bean object = exam.get(position);
                 String uAns = ansMap.get((position + 1) + "");
-                if (position < selectionNum) {
-                    if (exam_mode)
-                        v = View.inflate(getApplicationContext(), R.layout.item_selection2, null);
-                    else v = View.inflate(getApplicationContext(), R.layout.item_selection, null);
+                if (object.type == 1) {
+                    if (TextUtils.isEmpty(object.answer4)) {
+                        if (TextUtils.isEmpty(object.img))
+                            v = View.inflate(ExamActivity.this, R.layout.item_selection, null);
+                        else {
+                            v = View.inflate(ExamActivity.this, R.layout.item_selection_img, null);
+                            ques_img = v.findViewById(R.id.qustion_img);
+                        }
+                    } else {
+                        if (TextUtils.isEmpty(object.img))
+                            v = View.inflate(ExamActivity.this, R.layout.item_selection2, null);
+                        else {
+                            v = View.inflate(ExamActivity.this, R.layout.item_selection2_img, null);
+                            ques_img = v.findViewById(R.id.qustion_img);
+                        }
+                    }
                     TextView ques = v.findViewById(R.id.tv_question);
                     TextView index = v.findViewById(R.id.tv_question_index);
-                    ques.setText((position + 1) + "、" + ((SelectionBean) object).question);
+                    ques.setText(object.question);
                     index.setText("第" + (position + 1) + "题");
+                    if (!TextUtils.isEmpty(object.img) && ques_img != null) {
+                        Log.e("----------", index.getText().toString());
+                        ques_img.setImageBitmap(Tools.base64ToBitmap(object.img.split("=")[1]));
+                    }
                     final TextView ans1;
                     final TextView ans2;
                     final TextView ans3;
@@ -192,22 +214,18 @@ public class ExamActivity extends BaseActivity {
                     ans1 = v.findViewById(R.id.tv_answer1);
                     ans2 = v.findViewById(R.id.tv_answer2);
                     ans3 = v.findViewById(R.id.tv_answer3);
-                    ans1.setText(((SelectionBean) object).answer1);
-                    ans2.setText(((SelectionBean) object).answer2);
-                    ans3.setText(((SelectionBean) object).answer3);
-                    final PercentRelativeLayout item1;
-                    final PercentRelativeLayout item2;
-                    final PercentRelativeLayout item3;
-                    item1 = v.findViewById(R.id.rl_answer1);
-                    item2 = v.findViewById(R.id.rl_answer2);
-                    item3 = v.findViewById(R.id.rl_answer3);
-
+                    ans1.setText(object.answer1);
+                    ans2.setText(object.answer2);
+                    ans3.setText(object.answer3);
+                    final PercentRelativeLayout item1 = v.findViewById(R.id.rl_answer1);
+                    final PercentRelativeLayout item2 = v.findViewById(R.id.rl_answer2);
+                    final PercentRelativeLayout item3 = v.findViewById(R.id.rl_answer3);
                     RippleView rip1 = v.findViewById(R.id.rip1);
                     RippleView rip2 = v.findViewById(R.id.rip2);
                     RippleView rip3 = v.findViewById(R.id.rip3);
-                    if (exam_mode) {
+                    if (!TextUtils.isEmpty(object.answer4)) {
                         ans4 = v.findViewById(R.id.tv_answer4);
-                        ans4.setText(((SelectionBean) object).answer4);
+                        ans4.setText(object.answer4);
                         item4 = v.findViewById(R.id.rl_answer4);
                         rip4 = v.findViewById(R.id.rip4);
                     }
@@ -215,7 +233,7 @@ public class ExamActivity extends BaseActivity {
                         item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                        if (exam_mode)
+                        if (!TextUtils.isEmpty(object.answer4))
                             item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                     } else {
                         switch (uAns) {
@@ -223,21 +241,21 @@ public class ExamActivity extends BaseActivity {
                                 item1.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                                 item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                                if (exam_mode)
+                                if (!TextUtils.isEmpty(object.answer4))
                                     item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 break;
                             case "B":
                                 item2.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                                 item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                                if (exam_mode)
+                                if (!TextUtils.isEmpty(object.answer4))
                                     item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 break;
                             case "C":
                                 item3.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                                 item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                                if (exam_mode)
+                                if (!TextUtils.isEmpty(object.answer4))
                                     item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 break;
                             case "D":
@@ -250,7 +268,6 @@ public class ExamActivity extends BaseActivity {
                                 break;
                         }
                     }
-                    //item1.setOnClickListener(new View.OnClickListener() {
                     final PercentRelativeLayout finalItem = item4;
                     rip1.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -259,11 +276,10 @@ public class ExamActivity extends BaseActivity {
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                             item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                            if (exam_mode)
+                            if (!TextUtils.isEmpty(object.answer4))
                                 finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         }
                     });
-                    // item2.setOnClickListener(new View.OnClickListener() {
                     rip2.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -271,11 +287,10 @@ public class ExamActivity extends BaseActivity {
                             item2.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                            if (exam_mode)
+                            if (!TextUtils.isEmpty(object.answer4))
                                 finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         }
                     });
-                    // item3.setOnClickListener(new View.OnClickListener() {
                     rip3.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -283,11 +298,11 @@ public class ExamActivity extends BaseActivity {
                             item3.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                             item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                            if (exam_mode)
+                            if (!TextUtils.isEmpty(object.answer4))
                                 finalItem.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         }
                     });
-                    if (exam_mode) {
+                    if (!TextUtils.isEmpty(object.answer4)) {
                         rip4.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -301,58 +316,52 @@ public class ExamActivity extends BaseActivity {
                     }
                 } else {
                     v = View.inflate(getApplicationContext(), R.layout.item_judge, null);
-                    TextView ques = v.findViewById(R.id.tv_question);
-                    TextView index = v.findViewById(R.id.tv_question_index);
-                    final PercentRelativeLayout item4;
-                    final PercentRelativeLayout item5;
-                    item4 = v.findViewById(R.id.rl_answer1);
-                    item5 = v.findViewById(R.id.rl_answer2);
-
-                    RippleView rip4 = v.findViewById(R.id.rip1);
-                    RippleView rip5 = v.findViewById(R.id.rip2);
-
-                    ques.setText((position + 1) + "、" + ((JudgeBean) object).question);
-                    index.setText("第" + (position + 1) + "题");
+                    TextView ques2 = v.findViewById(R.id.tv_question);
+                    TextView index2 = v.findViewById(R.id.tv_question_index);
+                    final PercentRelativeLayout item42 = v.findViewById(R.id.rl_answer1);
+                    final PercentRelativeLayout item52 = v.findViewById(R.id.rl_answer2);
+                    RippleView rip42 = v.findViewById(R.id.rip1);
+                    RippleView rip52 = v.findViewById(R.id.rip2);
+                    ques2.setText(object.question);
+                    index2.setText("第" + (position + 1) + "题");
                     if (uAns != null) {
                         switch (uAns) {
                             case "✔":
-                                item4.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
-                                item5.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                item42.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
+                                item52.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 break;
                             case "✘":
-                                item5.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
-                                item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                                item52.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
+                                item42.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                                 break;
                             default:
                                 break;
                         }
                     } else {
-                        item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
-                        item5.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                        item42.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                        item52.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                     }
-                    //  item4.setOnClickListener(new View.OnClickListener() {
-                    rip4.setOnClickListener(new View.OnClickListener() {
+                    rip42.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             ansMap.put((position + 1) + "", "✔");
-                            item4.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
-                            item5.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            item42.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
+                            item52.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         }
                     });
-                    // item5.setOnClickListener(new View.OnClickListener() {
-                    rip5.setOnClickListener(new View.OnClickListener() {
+                    rip52.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             ansMap.put((position + 1) + "", "✘");
-                            item5.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
-                            item4.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
+                            item52.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
+                            item42.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                         }
                     });
                 }
                 return v;
             }
         };
-        final BaseAdapter ba = new BaseAdapter() {
+        final BaseAdapter wrong_list_adapter = new BaseAdapter() {
             @Override
             public int getCount() {
                 return wrongList.size();
@@ -371,11 +380,24 @@ public class ExamActivity extends BaseActivity {
             @Override
             public View getView(int i, View view, ViewGroup viewGroup) {
                 View v;
-                Object ob = wrongList.get(i);
-                if (ob instanceof SelectionBean) {
-                    if (exam_mode)
-                        v = View.inflate(ExamActivity.this, R.layout.item_selection2, null);
-                    else v = View.inflate(ExamActivity.this, R.layout.item_selection, null);
+                ImageView ques_iv = null;
+                Bean ob = wrongList.get(i);
+                if (ob.type == 1) {
+                    if (TextUtils.isEmpty(ob.answer4)) {
+                        if (TextUtils.isEmpty(ob.img))
+                            v = View.inflate(ExamActivity.this, R.layout.item_selection, null);
+                        else {
+                            v = View.inflate(ExamActivity.this, R.layout.item_selection_img, null);
+                            ques_iv = v.findViewById(R.id.qustion_img);
+                        }
+                    } else {
+                        if (TextUtils.isEmpty(ob.img))
+                            v = View.inflate(ExamActivity.this, R.layout.item_selection2, null);
+                        else {
+                            v = View.inflate(ExamActivity.this, R.layout.item_selection2_img, null);
+                            ques_iv = v.findViewById(R.id.qustion_img);
+                        }
+                    }
                     TextView index = v.findViewById(R.id.tv_question_index);
                     TextView ques = v.findViewById(R.id.tv_question);
                     TextView ans1 = v.findViewById(R.id.tv_answer1);
@@ -386,16 +408,20 @@ public class ExamActivity extends BaseActivity {
                     PercentRelativeLayout item1 = v.findViewById(R.id.rl_answer1);
                     PercentRelativeLayout item2 = v.findViewById(R.id.rl_answer2);
                     PercentRelativeLayout item3 = v.findViewById(R.id.rl_answer3);
-                    String uAns = ansMap.get(((SelectionBean) ob).No);
-                    index.setText("第" + ((SelectionBean) ob).No + "题");
-                    ques.setText(((SelectionBean) ob).No + "、" + ((SelectionBean) ob).question);
-                    ans1.setText(((SelectionBean) ob).answer1);
-                    ans2.setText(((SelectionBean) ob).answer2);
-                    ans3.setText(((SelectionBean) ob).answer3);
-                    if (exam_mode) {
+                    String uAns = ansMap.get(ob.No);
+                    index.setText("第" + ob.No + "题");
+                    ques.setText(ob.question);
+                    if (!TextUtils.isEmpty(ob.img) && ques_iv != null) {
+                        Log.e("----------", index.getText().toString());
+                        ques_iv.setImageBitmap(Tools.base64ToBitmap(ob.img.split("=")[1]));
+                    }
+                    ans1.setText(ob.answer1);
+                    ans2.setText(ob.answer2);
+                    ans3.setText(ob.answer3);
+                    if (!TextUtils.isEmpty(ob.answer4)) {
                         ans4 = v.findViewById(R.id.tv_answer4);
                         item4 = v.findViewById(R.id.rl_answer4);
-                        ans4.setText(((SelectionBean) ob).answer4);
+                        ans4.setText(ob.answer4);
                     }
                     switch (uAns) {
                         case "A":
@@ -413,7 +439,7 @@ public class ExamActivity extends BaseActivity {
                         default:
                             break;
                     }
-                    switch (((SelectionBean) ob).corAns) {
+                    switch (ob.corAns) {
                         case "A":
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answerright));
                             break;
@@ -435,9 +461,9 @@ public class ExamActivity extends BaseActivity {
                     TextView index = v.findViewById(R.id.tv_question_index);
                     PercentRelativeLayout item1 = v.findViewById(R.id.rl_answer1);
                     PercentRelativeLayout item2 = v.findViewById(R.id.rl_answer2);
-                    String uAns = ansMap.get(((JudgeBean) ob).No);
-                    index.setText("第" + ((JudgeBean) ob).No + "题");
-                    ques.setText(((JudgeBean) ob).No + "、" + ((JudgeBean) ob).question);
+                    String uAns = ansMap.get(ob.No);
+                    index.setText("第" + ob.No + "题");
+                    ques.setText(ob.question);
                     switch (uAns) {
                         case "✔":
                             item1.setBackground(getResources().getDrawable(R.drawable.bg_answerwrong));
@@ -458,7 +484,7 @@ public class ExamActivity extends BaseActivity {
         new Thread() {
             @Override
             public void run() {
-                while (ansMap == null || ansMap.size() == 0 & flag) {
+                while ((ansMap == null || ansMap.size() == 0) & flag) {
                 }
                 if (flag) handler.sendEmptyMessage(0);
             }
@@ -468,26 +494,19 @@ public class ExamActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 clock.stop();
-                long useTime = System.currentTimeMillis() - startTime;
+                Long useTime = System.currentTimeMillis() - startTime;
                 AlertDialog.Builder builder = new AlertDialog.Builder(ExamActivity.this);
                 int score = 0;
                 wrongList = new ArrayList();
-                for (Object j : exam) {
-                    if (j instanceof SelectionBean) {
-                        if (ansMap.containsKey(((SelectionBean) j).No)) {
-                            if (ansMap.get(((SelectionBean) j).No).equals(((SelectionBean) j).corAns))
-                                score++;
-                            else wrongList.add(j);
-                        }
-                    } else {
-                        if (ansMap.containsKey(((JudgeBean) j).No)) {
-                            if (ansMap.get(((JudgeBean) j).No).equals(((JudgeBean) j).answer))
-                                score++;
-                            else wrongList.add(j);
-                        }
+                for (Bean j : exam) {
+                    if (ansMap.containsKey(j.No)) {
+                        if (ansMap.get(j.No).equals(j.corAns))
+                            score++;
+                        else wrongList.add(j);
                     }
                 }
-                View v = View.inflate(app, R.layout.dialog_score, null);
+
+                View v = View.inflate(ExamActivity.this, R.layout.dialog_score, null);
                 TextView right = v.findViewById(R.id.right_count);
                 TextView ans_count = v.findViewById(R.id.ans_count);
                 TextView time = v.findViewById(R.id.time);
@@ -506,7 +525,7 @@ public class ExamActivity extends BaseActivity {
                 ans_count.setTextColor(getResources().getColor(R.color.colorAccent));
                 ans_count.setText(ansMap.size() + "");
                 if (score >= 80) {
-                    tv_score.setText(score + "");
+                    tv_score.setText(score + "（合格）");
                     tv_score.setTextColor(getResources().getColor(R.color.green));
                 } else {
                     tv_score.setTextColor(getResources().getColor(R.color.colorAccent));
@@ -517,8 +536,7 @@ public class ExamActivity extends BaseActivity {
                     @Override
                     public void onClick(View view) {
                         dialog.dismiss();
-                        Intent intent = new Intent(ExamActivity.this, MainActivity.class);
-                        startActivity(intent);
+                        finish();
                     }
                 });
                 cancel.setOnClickListener(new View.OnClickListener() {
@@ -529,14 +547,17 @@ public class ExamActivity extends BaseActivity {
                             exam_listView.setVisibility(View.GONE);
                             clock.setVisibility(View.GONE);
                             get.setVisibility(View.GONE);
+                            mi_banner.setVisibility(View.GONE);
+                            note.setVisibility(View.GONE);
+                            tmall.setVisibility(View.GONE);
                             title.setVisibility(View.VISIBLE);
-                            wrong_listView.setAdapter(ba);
+                            wrong_listView.setAdapter(wrong_list_adapter);
                             wrong_listView.setVisibility(View.VISIBLE);
                             check_wrong_state = true;
                         } else {
-                            //Toast.makeText(ExamActivity.this, "全部正确哦,您是个天才!", Toast.LENGTH_LONG).show();
                             Toasty.success(ExamActivity.this, "全部正确哦,您是个天才!", Toast.LENGTH_LONG).show();
-                            startActivity(new Intent(ExamActivity.this, MainActivity.class));
+                            //startActivity(new Intent(ExamActivity.this, MainActivity.class));
+                            finish();
                         }
                     }
                 });
@@ -558,10 +579,12 @@ public class ExamActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         try {
-            mBannerAd.recycle();
+            if (mBannerAd != null)
+                mBannerAd.recycle();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        flag = false;
         exam_listView = null;
         wrong_listView = null;
         clock = null;
@@ -571,7 +594,10 @@ public class ExamActivity extends BaseActivity {
         wrongList = null;
         dialog = null;
         title = null;
-        source = null;
+        sel_exam = null;
+        jud_exam = null;
+        selList = null;
+        judList = null;
         exam_list_adapter = null;
         handler = null;
     }
@@ -704,7 +730,8 @@ public class ExamActivity extends BaseActivity {
             mBannerAd.loadAndShow(Mi_posId);
         } catch (Exception e) {
             e.printStackTrace();
-            show_ali();
+            handler.sendEmptyMessage(1);
+            //show_ali();
         }
     }
 
@@ -841,8 +868,14 @@ public class ExamActivity extends BaseActivity {
 
             exam.clear();
             ansMap.clear();
-            Tools.get2question(source, exam, selectionNum, judgeNum);
-            exam_listView.setAdapter(exam_list_adapter);
+            sel_exam.clear();
+            jud_exam.clear();
+            Tools.get2question(selList, sel_exam, selectionNum, 0);
+            Tools.get2question(judList, jud_exam, judgeNum, selectionNum);
+            exam.addAll(sel_exam);
+            exam.addAll(jud_exam);
+            exam_list_adapter.notifyDataSetChanged();
+            //exam_listView.setAdapter(exam_list_adapter);
             //刷新时同时要刷新时间
             clock.setTime(1, 30, 0);
             clock.start();

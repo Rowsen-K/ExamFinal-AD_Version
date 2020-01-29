@@ -2,36 +2,24 @@ package com.rowsen.mytools;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Environment;
+import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 
-import com.rowsen.examfinal.JudgeBean;
-import com.rowsen.examfinal.SelectionBean;
+import com.rowsen.examfinal.Bean;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import java.io.BufferedReader;
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Random;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 /*
     目标：制作一个常用的工具类集合
@@ -44,181 +32,16 @@ import javax.xml.transform.stream.StreamResult;
  */
 public class Tools {
 
-    public static void file2list(InputStream in, ArrayList list,boolean mode) {//传入对应的文件的流和提供一个保存流文件提出出的数据的集合对象
-        BufferedReader bf = new BufferedReader(new InputStreamReader(in));
-        try {
-            String s = bf.readLine();
-            int n = 1;
-            while (s != null && s != "" && s.contains("&")) {
-                String[] all = s.split("&");
-                SelectionBean sb = new SelectionBean();
-                sb.No = n++ + "";
-                sb.question = all[0];
-                sb.answer1 = all[1];
-                sb.answer2 = all[2];
-                sb.answer3 = all[3];
-                if(mode) {
-                    sb.answer4 = all[4];
-                    sb.corAns = all[5].trim();
-                }
-                else {
-                    sb.answer4 = "空";
-                    sb.corAns = all[4].trim();
-                }
-                list.add(sb);
-                s = bf.readLine();
-            }
-            //Log.e(list.size()+"","-----------------------数目");
-            while (s != null && s != "") {
-                String[] all = s.split("=");
-                JudgeBean jb = new JudgeBean();
-                jb.No = n++ + "";
-                jb.question = all[0];
-                //Log.e(list.size()+"",jb.No+"     "+jb.question);
-                jb.answer = all[1].trim();
-                list.add(jb);
-                s = bf.readLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void list2xml(List list, File f) {
-        try {
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            Element root = doc.createElement("Exam");
-
-            Element selection = doc.createElement("Selection");
-            Element judge = doc.createElement("Judge");
-
-            int n = 0;
-            while (n < list.size() && list.get(n) instanceof SelectionBean) {
-                SelectionBean sb = (SelectionBean) list.get(n);
-                Element item = doc.createElement("Item");
-                item.setAttribute("No", sb.No);
-                Element ques = doc.createElement("Question");
-                ques.setTextContent(sb.question);
-                Element ans1 = doc.createElement("Answer1");
-                ans1.setTextContent(sb.answer1);
-                Element ans2 = doc.createElement("Answer2");
-                ans2.setTextContent(sb.answer2);
-                Element ans3 = doc.createElement("Answer3");
-                ans3.setTextContent(sb.answer3);
-                Element ans = doc.createElement("Answer");
-                ans.setTextContent(sb.corAns);
-                item.appendChild(ques);
-                item.appendChild(ans1);
-                item.appendChild(ans2);
-                item.appendChild(ans3);
-                item.appendChild(ans);
-                selection.appendChild(item);
-                n++;
-            }
-            while (n < list.size() && list.get(n) instanceof JudgeBean) {
-                JudgeBean sb = (JudgeBean) list.get(n);
-                Element item = doc.createElement("Item");
-                item.setAttribute("No", sb.No);
-                Element ques = doc.createElement("Question");
-                ques.setTextContent(sb.question);
-                Element ans = doc.createElement("Answer");
-                ans.setTextContent(sb.answer);
-                item.appendChild(ques);
-                item.appendChild(ans);
-                judge.appendChild(item);
-                n++;
-            }
-            root.appendChild(selection);
-            root.appendChild(judge);
-            doc.appendChild(root);
-            //System.out.println(doc);
-
-            DOMSource ds = new DOMSource(doc);
-            Transformer tf = TransformerFactory.newInstance().newTransformer();
-            tf.transform(ds, new StreamResult(new FileOutputStream(f)));
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /*   public static void xml2list(File xml, List list,int mode) {
-           try {
-               // XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
-               //  parser.setInput(new FileInputStream(xml),"UTF-8");
-               Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xml);
-               NodeList item = doc.getElementsByTagName("Item");
-               for (int n = 0; n < item.getLength(); n++) {
-                   Node node = item.item(n);
-                   //System.out.println(node.getParentNode().getNodeName());
-                   switch (node.getParentNode().getNodeName()) {
-                       case "Selection":
-                          if(mode==1||mode==3) {
-                              SelectionBean s = new SelectionBean();
-                              s.No = node.getAttributes().item(0).getTextContent();
-                              Node ques = node.getFirstChild();
-                              Node ans1 = ques.getNextSibling();
-                              Node ans2 = ans1.getNextSibling();
-                              Node ans3 = ans2.getNextSibling();
-                              Node ans = ans3.getNextSibling();
-                              s.question = ques.getTextContent();
-                              s.answer1 = ans1.getTextContent();
-                              s.answer2 = ans2.getTextContent();
-                              s.answer3 = ans3.getTextContent();
-                              s.corAns = ans.getTextContent();
-                              list.add(s);
-                          }
-                           break;
-                       case "Judge":
-                          if(mode==2||mode==3) {
-                              JudgeBean j = new JudgeBean();
-                              j.No = node.getAttributes().item(0).getTextContent();
-                              Node jques = node.getFirstChild();
-                              Node jans = jques.getNextSibling();
-                              j.question = jques.getTextContent();
-                              j.answer = jans.getTextContent();
-                              list.add(j);
-                          }
-                           break;
-                       default:
-                           break;
-                       // System.out.println(j);
-                   }
-               }
-           } catch (FileNotFoundException e) {
-               e.printStackTrace();
-           } catch (SAXException e) {
-               e.printStackTrace();
-           } catch (ParserConfigurationException e) {
-               e.printStackTrace();
-           } catch (IOException e) {
-               e.printStackTrace();
-           }
-       }
-   */
-    public static void get2question(List resource, List target, int selectionNum, int judgeNum) {
+    public static void get2question(List<Bean> resource, List<Bean> target, int num, int offset) {
         Random r = new Random();
-        int size = resource.size();
-        for (int n = 1; n <= selectionNum; ) {
-            Object ob = resource.get(r.nextInt(size));
-            if (ob instanceof SelectionBean && !target.contains(ob)) {
-                SelectionBean sb = new SelectionBean((SelectionBean) ob);
-                sb.No = n + "";
+        for (int n = 1; n <= num; ) {
+            Bean ob = resource.get(r.nextInt(resource.size()));
+            //Log.e(ob.No,ob.question+"\r\nA、"+ob.answer1+"\r\nB、"+ob.answer2+"\r\nC、"+ob.answer3+"\r\nD、"+ob.answer4+"\r\n答案："+ob.corAns);
+            if (!target.contains(ob)) {
+                Bean sb = new Bean(ob);
+                sb.No = offset + n + "";
                 target.add(sb);
-                n++;
-            }
-        }
-        for (int n = 1; n <= judgeNum; ) {
-            Object ob = resource.get(r.nextInt(size));
-            if (ob instanceof JudgeBean && !target.contains(ob)) {
-                JudgeBean jb = new JudgeBean((JudgeBean) ob);
-                jb.No = (n + selectionNum) + "";
-                target.add(jb);
+                //Log.e(n + "", ob.question + "\r\nA、" + ob.answer1 + "\r\nB、" + ob.answer2 + "\r\nC、" + ob.answer3 + "\r\nD、" + ob.answer4 + "\r\n答案：" + ob.corAns);
                 n++;
             }
         }
@@ -274,5 +97,103 @@ public class Tools {
     // 程序入口，外界直接调用此方法即可
     public static void shoot(Activity a) {
         Tools.savePic(Tools.takeScreenShot(a), Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/Rowsen.png");
+    }
+
+    /**
+     * 将图片转换成Base64编码的字符串
+     */
+    public static String imageToBase64(String path) {
+        if (TextUtils.isEmpty(path)) {
+            return null;
+        }
+        InputStream is = null;
+        byte[] data = null;
+        String result = null;
+        try {
+            is = new FileInputStream(path);
+            //创建一个字符流大小的数组。
+            data = new byte[is.available()];
+            //写入数组
+            is.read(data);
+            //用默认的编码格式进行编码
+            result = Base64.encodeToString(data, Base64.NO_WRAP);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (null != is) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return result;
+    }
+
+    public static String imageToBase64(InputStream is) {
+        byte[] data = null;
+        String result = null;
+        try {
+            //创建一个字符流大小的数组。
+            data = new byte[is.available()];
+            //写入数组
+            is.read(data);
+            //用默认的编码格式进行编码
+            result = Base64.encodeToString(data, Base64.NO_WRAP);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (null != is) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 将Base64编码转换为图片
+     *
+     * @param base64Str
+     * @param path
+     * @return true
+     */
+    public static boolean base64ToFile(String base64Str, String path) {
+        byte[] data = Base64.decode(base64Str, Base64.NO_WRAP);
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] < 0) {
+                //调整异常数据
+                data[i] += 256;
+            }
+        }
+        OutputStream os = null;
+        try {
+            os = new FileOutputStream(path);
+            os.write(data);
+            os.flush();
+            os.close();
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static Bitmap base64ToBitmap(String base64) {
+        byte[] data = Base64.decode(base64, Base64.NO_WRAP);
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] < 0) {
+                //调整异常数据
+                data[i] += 256;
+            }
+        }
+        return BitmapFactory.decodeByteArray(data, 0, data.length);
     }
 }

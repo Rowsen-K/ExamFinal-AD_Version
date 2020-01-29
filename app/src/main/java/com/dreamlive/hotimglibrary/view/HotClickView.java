@@ -18,7 +18,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
-//import com.dreamlive.hotimglibrary.r_round;
 import com.dreamlive.hotimglibrary.entity.HotArea;
 import com.dreamlive.hotimglibrary.utils.LogUtils;
 import com.dreamlive.hotimglibrary.utils.XMLUtils;
@@ -207,7 +206,7 @@ public class HotClickView extends View {
             paint.setARGB(80, 68, 173, 161);
             paint.setStyle(Style.FILL);
             canvas.scale(scale, scale);
-            canvas.translate((VIEW_WIDTH / scale - BIT_WIDTH) / 2, (VIEW_HEIGHT/scale-BIT_HEIGHT)
+            canvas.translate((VIEW_WIDTH / scale - BIT_WIDTH) / 2, (VIEW_HEIGHT / scale - BIT_HEIGHT)
                     / 2);
             canvas.drawPath(mCheckAreas.get(key).getPath(), paint);
         }

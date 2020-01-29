@@ -44,8 +44,7 @@
         android:layout_height="match_parent"
         android:background="#b3888888"
         android:clickable="true"
-        android:focusable="true"
-        >
+        android:focusable="true">
 
         <LinearLayout
             android:layout_width="@dimen/dip_300"
@@ -54,32 +53,36 @@
             android:background="@drawable/shape_dialog"
             android:orientation="vertical">
 
-            <RelativeLayout
+            <android.support.percent.PercentRelativeLayout
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:layout_marginTop="@dimen/dip_13"
                 android:gravity="center_horizontal">
 
                 <ImageView
                     android:id="@+id/dialog_avatar_view"
                     android:layout_width="match_parent"
-                    android:layout_height="60dp"
+                    android:layout_height="match_parent"
                     android:scaleType="fitXY"
-                    android:src="@drawable/title"/>
+                    android:src="@drawable/title" />
 
-                <TextView
+                <me.grantland.widget.AutofitTextView
                     android:id="@+id/dialog_name_view"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginTop="@dimen/dip_10"
+                    android:gravity="center"
+                    android:maxLines="1"
                     android:text="考试类型选择"
                     android:textColor="@color/app_text_color"
-                    android:textSize="@dimen/textSize_22" />
+                    android:textSize="@dimen/textSize_22"
+                    android:textStyle="bold"
+                    app:layout_marginLeftPercent="20%"
+                    app:layout_marginTopPercent="10%"
+                    app:layout_widthPercent="60%" />
 
-            </RelativeLayout>
-
+            </android.support.percent.PercentRelativeLayout>
 
 
             <TextView
@@ -87,32 +90,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_gravity="center_horizontal"
-                android:gravity="center"
                 android:layout_marginTop="@dimen/dip_15"
+                android:gravity="center"
+                android:onClick="exam_select"
                 android:text="上岗证"
                 android:textColor="@color/lightblue"
-                android:textSize="30sp"
-                android:onClick="exam_select"/>
+                android:textSize="30sp" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2px"
-                android:background="@color/blue"
-                />
+                android:background="@color/blue" />
+
             <TextView
                 android:id="@+id/middle"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_gravity="center"
                 android:gravity="center"
+                android:onClick="exam_select"
                 android:text="中级工"
                 android:textColor="@color/lightblue"
-                android:textSize="30sp"
-                android:onClick="exam_select"/>
+                android:textSize="30sp" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2px"
-                android:background="@color/blue"
-                />
+                android:background="@color/blue" />
+
             <TextView
                 android:id="@+id/high"
                 android:layout_width="match_parent"
@@ -120,28 +125,28 @@
                 android:layout_gravity="center"
                 android:gravity="center"
 
+                android:onClick="exam_select"
                 android:text="高级工"
                 android:textColor="@color/lightblue"
-                android:textSize="30sp"
-                android:onClick="exam_select"/>
+                android:textSize="30sp" />
         </LinearLayout>
+
         <FrameLayout
             android:id="@+id/type_mi_banner"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:layout_gravity="top">
-        </FrameLayout>
+            android:layout_gravity="top"></FrameLayout>
+
         <FrameLayout
             android:id="@+id/type_GDT_banner"
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            android:layout_gravity="top">
-        </FrameLayout>
-<!--        <FrameLayout
-            android:id="@+id/tt_banner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top">
-        </FrameLayout>-->
+            android:layout_gravity="top"></FrameLayout>
+        <!--        <FrameLayout
+                    android:id="@+id/tt_banner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top">
+                </FrameLayout>-->
     </FrameLayout>
 </RelativeLayout>

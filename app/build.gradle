@@ -1,4 +1,8 @@
-tasks.whenTaskAdded{ task->   if(task.name.equals("lint")) {       task.enabled=false  }}
+tasks.whenTaskAdded { task ->
+    if (task.name.equals("lint")) {
+        task.enabled = false
+    }
+}
 apply plugin: 'com.android.application'
 
 android {
@@ -7,9 +11,15 @@ android {
         applicationId "com.rowsen.examfinal"
         minSdkVersion 19
         targetSdkVersion 26
-        versionCode 92
-        versionName '9.2'
+        versionCode 94
+        versionName '9.4'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [
+                //AXYJ5PBV768L 属于应用"电工复审考试"独有的 Android AppKey, 用于配置SDK
+                MTA_APPKEY : "AXYJ5PBV768L",
+                //标注应用推广渠道用以区分新用户来源，可填写如应用宝，豌豆荚等
+                MTA_CHANNEL: "百度"
+        ]
     }
     buildTypes {
         release {
@@ -32,7 +42,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:wrong.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:2.3-alpha'
-
+    implementation "net.zetetic:android-database-sqlcipher:3.5.9@aar"
     implementation 'com.android.support:percent:26.1.0'
     implementation 'me.grantland:autofittextview:0.2.1'
     implementation project(':dachshundtablayout')
@@ -43,4 +53,9 @@ dependencies {
     implementation project(':MatchView')
     /*implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.6'*/
     implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
+
+    //腾讯移动分析---mta 3.4.7 稳定版
+    implementation 'com.qq.mta:mta:3.4.7-Release'
+    //mid jar包 必须添加
+    implementation 'com.tencent.mid:mid:4.06-Release'
 }

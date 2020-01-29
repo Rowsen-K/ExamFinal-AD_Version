@@ -1,11 +1,13 @@
 package com.rowsen.examfinal;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -15,59 +17,99 @@ import com.dreamlive.hotimglibrary.entity.HotArea;
 import com.dreamlive.hotimglibrary.utils.FileUtils;
 import com.dreamlive.hotimglibrary.view.HotClickView;
 import com.github.glomadrian.grav.GravView;
+import com.qq.e.ads.nativ.ADSize;
+import com.qq.e.ads.nativ.NativeExpressAD;
+import com.qq.e.ads.nativ.NativeExpressADView;
+import com.qq.e.comm.pi.AdData;
+import com.qq.e.comm.util.AdError;
+import com.rowsen.SqliteTools.SQLFunction;
 import com.rowsen.mytools.BannerAD;
 import com.rowsen.mytools.BaseActivity;
-import com.rowsen.mytools.Tools;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 
+import static com.rowsen.examfinal.Myapp.exam_table;
+
 public class MainActivity extends BaseActivity {
     HotClickView mHotView;
-    String exam_type;
     GravView grav;
     FrameLayout type_select;
     ViewGroup GDT_banner;
     ViewGroup Mi_banner;
-    Myapp app = Myapp.getInstance();
     //穿山甲广告
 /*    ViewGroup TT_banner;
     String TT_posId = "935909648";*/
     /*    TTAdNative mTTAdNative;
         TTNativeExpressAd mTTAd;*/
-    //gdt横幅广告ID
+    //gdt横幅广告ID---通用版本
     String GDT_posId = "2050594035277672";
+    //gdt横幅广告ID---华为版本
+    //String GDT_posId = "2040296830231863";
     //BannerView bv;
-    //Mi横幅ID
+    //Mi横幅ID---通用版本
     String Mi_posId = "9b45afa5ea4decaaecb0aaad06de100c";
+    //Mi横幅ID---华为版本
+    //String Mi_posId = "a176ad175bc39db2d6c0513da8a1db4d";
     //static final String Mi_posId = "19684d52bf8ab255e13f387b3dff4f41";
     BannerAD bannerAD;
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
+    //gdt_原生退出通用ID
+    String GDT_Id = "6050695992493656";
+    //gdt_原生退出华为ID
+    //String GDT_Id = "5050593992793695";
+    private NativeExpressAD nativeExpressAD;
+    private NativeExpressADView nativeExpressADView;
+    String TAG = "T";
+    ViewGroup gdtAd;
+    AlertDialog dialog_exit;
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        grav = null;
-        app = null;
-        mHotView = null;
-        bannerAD = null;
-        for (Activity act : Myapp.activitys) {
-            if (act != null)
-                act.finish();
+    public void onBackPressed() {
+        if (dialog_exit == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            View v = View.inflate(this, R.layout.dialog_exit, null);
+            gdtAd = v.findViewById(R.id.ad);
+            TextView exit = v.findViewById(R.id.exit);
+            TextView cancel = v.findViewById(R.id.cancel);
+            exit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    grav.stop();
+                    cancelADView();
+                    grav = null;
+                    mHotView = null;
+                    nativeExpressAD = null;
+                    nativeExpressADView = null;
+                    gdtAd = null;
+                    //dialog_exit.dismiss();
+                    dialog_exit = null;
+                    for (Activity act : Myapp.activitys) {
+                        if (act != null)
+                            act.finish();
+                    }
+                }
+            });
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog_exit.dismiss();
+                    cancelADView();
+                }
+            });
+            builder.setView(v);
+            dialog_exit = builder.create();
         }
+        dialog_exit.show();
+        refreshAd(this);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //  requestWindowFeature(Window.FEATURE_NO_TITLE);
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
@@ -95,39 +137,33 @@ public class MainActivity extends BaseActivity {
                 // int[] pos = hotArea.getPts();
                 switch (hotArea.getAreaId()) {
                     case "XZ":
-                        Intent selectionIntent = new Intent(MainActivity.this, SelectionActivity.class);
-                        selectionIntent.putExtra("exam_type", exam_type);
-                        //selectionIntent.putParcelableArrayListExtra("selectionList", Myapp.selectionList);
+                        Myapp.list.clear();
+                        Myapp.list = SQLFunction.queryType(MainActivity.this, exam_table, 1);
+                        Intent selectionIntent = new Intent(MainActivity.this, PracticeActivity.class);
+                        selectionIntent.putExtra("title", exam_table + "--选择题训练");
                         //  startActivity(selectionIntent, ActivityOptionsCompat.makeScaleUpAnimation(mHotView, (pos[0] + pos[2]) / 2, (pos[1] + pos[5]) / 2, pos[2] - pos[0], pos[5] - pos[1]).toBundle());
                         startActivity(selectionIntent);
                         break;
                     case "PD":
-                        Intent judgeIntent = new Intent(MainActivity.this, JudgeActivity.class);
-                        //judgeIntent.putParcelableArrayListExtra("judgeList", Myapp.judgeList);
+                        Myapp.list.clear();
+                        Myapp.list = SQLFunction.queryType(MainActivity.this, exam_table, 2);
+                        Intent judgeIntent = new Intent(MainActivity.this, PracticeActivity.class);
+                        judgeIntent.putExtra("title", exam_table + "--判断题训练");
                         // startActivity(judgeIntent, ActivityOptionsCompat.makeScaleUpAnimation(mHotView, (pos[0] + pos[2]) / 2, (pos[1] + pos[5]) / 2, pos[2] - pos[0], pos[5] - pos[1]).toBundle());
                         startActivity(judgeIntent);
                         break;
                     case "about":
                         Intent aboutIntent = new Intent(MainActivity.this, AboutActivity.class);
-                        //aboutIntent.putExtra("code", code);
-                        //  aboutIntent.putExtra("num",num);
                         //startActivity(aboutIntent, ActivityOptionsCompat.makeScaleUpAnimation(mHotView, (pos[0] + pos[2]) / 2, (pos[1] + pos[5]) / 2, pos[2] - pos[0], pos[5] - pos[1]).toBundle());
                         startActivity(aboutIntent);
                         break;
                     case "ZL":
                         Intent zlIntent = new Intent(MainActivity.this, ZlActivity.class);
-                        zlIntent.putExtra("exam_type", exam_type);
-                        // zlIntent.putParcelableArrayListExtra("selectionList", selectionList);
-                        //  zlIntent.putParcelableArrayListExtra("judgeList", judgeList);
-                        //  zlIntent.putParcelableArrayListExtra("all", allList);
                         //  startActivity(zlIntent, ActivityOptionsCompat.makeScaleUpAnimation(mHotView, (pos[0] + pos[2]) / 2, (pos[1] + pos[5]) / 2, pos[2] - pos[0], pos[5] - pos[1]).toBundle());
                         startActivity(zlIntent);
                         break;
                     case "KS":
                         Intent ExamIntent = new Intent(MainActivity.this, ExamActivity.class);
-                        ExamIntent.putExtra("exam_type", exam_type);
-                        //  ExamIntent.putParcelableArrayListExtra("selectionList", selectionList);
-                        //  ExamIntent.putParcelableArrayListExtra("judgeList", judgeList);
                         //  startActivity(ExamIntent, ActivityOptionsCompat.makeScaleUpAnimation(mHotView, (pos[0] + pos[2]) / 2, (pos[1] + pos[5]) / 2, pos[2] - pos[0], pos[5] - pos[1]).toBundle());
                         startActivity(ExamIntent);
                         break;
@@ -208,43 +244,128 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // grav.start();
-        // grav.setVisibility(View.VISIBLE);
-    }
-
-    //读取题库文件
-    void readXml(final String exam_type, final boolean mode) {
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                try {
-                    Myapp.selectionList.clear();
-                    Myapp.judgeList.clear();
-                    Myapp.allList.clear();
-                    Tools.file2list(getAssets().open(exam_type + "selection.txt"), Myapp.selectionList, mode);
-                    Tools.file2list(getAssets().open(exam_type + "judge.txt"), Myapp.judgeList, mode);
-                    Myapp.allList.addAll(Myapp.selectionList);
-                    Myapp.allList.addAll(Myapp.judgeList);
-                    //Tools.list2xml(Myapp.allList, new File(getFilesDir().getPath(), "Exam.xml"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    //handler.sendEmptyMessage(4);
-                }
-            }
-        }.start();
-    }
-
     public void exam_select(View view) {
-        exam_type = ((TextView) view).getText().toString();
-        if ("上岗证".equals(exam_type))
-            readXml(exam_type, false);
-        else readXml(exam_type, true);
+        exam_table = ((TextView) view).getText().toString().trim();
         type_select.setVisibility(View.GONE);
-        Toasty.success(this, exam_type).show();
+        Toasty.success(this, exam_table).show();
+    }
+
+    public void refreshAd(Activity mContext) {
+        try {
+            // 这里的Context必须为Activity
+            nativeExpressAD = new NativeExpressAD(mContext, getMyADSize(), Myapp.GDT_APPID, GDT_Id, new NativeExpressAD.NativeExpressADListener() {
+                @Override
+                public void onNoAD(AdError adError) {
+                    Log.i(TAG, String.format("onNoAD, error code: %d, error msg: %s", adError.getErrorCode(), adError.getErrorMsg()));
+                }
+
+                @Override
+                public void onADLoaded(List<NativeExpressADView> adList) {
+                    //Log.i(TAG, "onADLoaded: " + adList.size());
+                    // 释放前一个展示的NativeExpressADView的资源
+                    if (nativeExpressADView != null) {
+                        nativeExpressADView.destroy();
+                    }
+
+                    if (gdtAd.getVisibility() != View.VISIBLE) {
+                        gdtAd.setVisibility(View.VISIBLE);
+                    }
+
+                    if (gdtAd.getChildCount() > 0) {
+                        gdtAd.removeAllViews();
+                    }
+
+                    nativeExpressADView = adList.get(0);
+                    //Log.i(TAG, "onADLoaded, video info: " + getAdInfo(nativeExpressADView));
+                    // 广告可见才会产生曝光，否则将无法产生收益。
+                    gdtAd.addView(nativeExpressADView);
+                    nativeExpressADView.render();
+                }
+
+                @Override
+                public void onRenderFail(NativeExpressADView adView) {
+                    //Log.i(TAG, "onRenderFail");
+                }
+
+                @Override
+                public void onRenderSuccess(NativeExpressADView adView) {
+                    //Log.i(TAG, "onRenderSuccess");
+                }
+
+                @Override
+                public void onADExposure(NativeExpressADView adView) {
+                    //Log.i(TAG, "onADExposure");
+                }
+
+                @Override
+                public void onADClicked(NativeExpressADView adView) {
+                    //Log.i(TAG, "onADClicked");
+                }
+
+                @Override
+                public void onADClosed(NativeExpressADView adView) {
+                    //Log.i(TAG, "onADClosed");
+                    // 当广告模板中的关闭按钮被点击时，广告将不再展示。NativeExpressADView也会被Destroy，释放资源，不可以再用来展示。
+                    if (gdtAd != null && gdtAd.getChildCount() > 0) {
+                        gdtAd.removeAllViews();
+                        gdtAd.setVisibility(View.GONE);
+                    }
+                }
+
+                @Override
+                public void onADLeftApplication(NativeExpressADView adView) {
+                    //Log.i(TAG, "onADLeftApplication");
+                }
+
+                @Override
+                public void onADOpenOverlay(NativeExpressADView adView) {
+                    //Log.i(TAG, "onADOpenOverlay");
+                }
+
+                @Override
+                public void onADCloseOverlay(NativeExpressADView adView) {
+                    //Log.i(TAG, "onADCloseOverlay");
+                }
+            });
+            nativeExpressAD.loadAD(1);
+        } catch (NumberFormatException e) {
+            Log.w(TAG, "ad size invalid.");
+        }
+    }
+
+    private ADSize getMyADSize() {
+        int w = ADSize.FULL_WIDTH;
+        int h = ADSize.AUTO_HEIGHT;
+        return new ADSize(w, h);
+    }
+
+    /**
+     * 获取广告数据
+     *
+     * @param nativeExpressADView
+     * @return
+     */
+    private String getAdInfo(NativeExpressADView nativeExpressADView) {
+        AdData adData = nativeExpressADView.getBoundData();
+        if (adData != null) {
+            StringBuilder infoBuilder = new StringBuilder();
+            infoBuilder.append("title:").append(adData.getTitle()).append(",")
+                    .append("desc:").append(adData.getDesc()).append(",")
+                    .append("patternType:").append(adData.getAdPatternType());
+            return infoBuilder.toString();
+        }
+        return null;
+    }
+
+
+    /**
+     * 在页面销毁时调用  destroy
+     */
+    public void cancelADView() {
+        // 使用完了每一个NativeExpressADView之后都要释放掉资源
+        if (nativeExpressADView != null) {
+            nativeExpressADView.destroy();
+        }
     }
 
     //显示GDT横幅广告
