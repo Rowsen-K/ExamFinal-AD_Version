@@ -39,26 +39,18 @@ public class MainActivity extends BaseActivity {
     FrameLayout type_select;
     ViewGroup GDT_banner;
     ViewGroup Mi_banner;
+    String GDT_posId;
+    String Mi_posId;
+    String GDT_Id;//退出广告
     //穿山甲广告
-/*    ViewGroup TT_banner;
-    String TT_posId = "935909648";*/
-    /*    TTAdNative mTTAdNative;
-        TTNativeExpressAd mTTAd;*/
-    //gdt横幅广告ID---通用版本
-    //String GDT_posId = "2050594035277672";
-    //gdt横幅广告ID---华为版本
-    String GDT_posId = "2040296830231863";
+/*  ViewGroup TT_banner;
+    String TT_posId = "935909648";
+    TTAdNative mTTAdNative;
+    TTNativeExpressAd mTTAd;*/
+
     //BannerView bv;
-    //Mi横幅ID---通用版本
-    //String Mi_posId = "9b45afa5ea4decaaecb0aaad06de100c";
-    //Mi横幅ID---华为版本
-    String Mi_posId = "a176ad175bc39db2d6c0513da8a1db4d";
     BannerAD bannerAD;
 
-    //gdt_原生退出通用ID
-    //String GDT_Id = "6050695992493656";
-    //gdt_原生退出华为ID
-    String GDT_Id = "5050593992793695";
     private NativeExpressAD nativeExpressAD;
     private NativeExpressADView nativeExpressADView;
     String TAG = "T";
@@ -113,6 +105,23 @@ public class MainActivity extends BaseActivity {
             getSupportActionBar().hide();
         }
         setContentView(R.layout.activity_main);
+
+        if (Myapp.hw_Version) {
+            //gdt横幅广告ID---华为版本
+            GDT_posId = "2040296830231863";
+            //Mi横幅ID---华为版本
+            Mi_posId = "a176ad175bc39db2d6c0513da8a1db4d";
+            //gdt_原生退出---华为版本
+            GDT_Id = "5050593992793695";
+        } else {
+            //gdt横幅广告ID---通用版本
+            GDT_posId = "2050594035277672";
+            //Mi横幅ID---通用版本
+            Mi_posId = "9b45afa5ea4decaaecb0aaad06de100c";
+            //gdt_原生退出---通用版本
+            GDT_Id = "6050695992493656";
+        }
+
         grav = findViewById(R.id.grav);
         type_select = findViewById(R.id.type_select);
         //TT_banner = findViewById(R.id.tt_banner);

@@ -51,10 +51,10 @@ import es.dmoral.toasty.Toasty;
 import static android.view.View.GONE;
 
 public class ExamActivity extends BaseActivity {
-    //Mi横幅广告ID---通用版本
-    //static final String Mi_posId = "19684d52bf8ab255e13f387b3dff4f41";//802e356f1726f9ff39c69308bfd6f06a";
-    //Mi横幅广告ID---华为版本
-    static final String Mi_posId = "57ea77b8645472fac82f2fc0744b0c0a";
+    String Mi_posId;
+    String GDT_posId;
+    String GDT_Id;
+
     ListView exam_listView;
     ListView wrong_listView;
     SnapUpCountDownTimerView clock;
@@ -87,19 +87,10 @@ public class ExamActivity extends BaseActivity {
     boolean click_success_state = false;
     //傻B小米广告一旦无广告和异常就无法停止请求
     boolean mi_fault = false;
-    //gdt横幅广告ID
+    //gdt老版本横幅广告ID
     //String GDT_posId = "3080059597263454";
-    //gdt横幅2.0广告ID---通用版本
-    //String GDT_posId = "4050869827503147";
-    //gdt横幅2.0广告ID---华为版本
-    String GDT_posId = "9040890800138864";
-    //广点通测试bannerID
-    //String BannerPosID = "9079537218417626401";
 
-    //gdt_考试退出通用ID
-    //String GDT_Id = "1030698963416763";
-    //gdt_考试退出华为ID
-    String GDT_Id = "9010392953966902";
+
     private NativeExpressAD nativeExpressAD;
     private NativeExpressADView nativeExpressADView;
     String TAG = "T";
@@ -120,6 +111,22 @@ public class ExamActivity extends BaseActivity {
             getSupportActionBar().hide();
         }
         setContentView(R.layout.activity_exam);
+
+        if (Myapp.hw_Version) {
+            //Mi横幅广告ID---华为版本
+            Mi_posId = "57ea77b8645472fac82f2fc0744b0c0a";
+            //gdt横幅2.0广告ID---华为版本
+            GDT_posId = "9040890800138864";
+            //gdt_考试退出---华为版本
+            GDT_Id = "9010392953966902";
+        } else {
+            //Mi横幅广告ID---通用版本
+            Mi_posId = "19684d52bf8ab255e13f387b3dff4f41";
+            //gdt横幅2.0广告ID---通用版本
+            GDT_posId = "4050869827503147";
+            //gdt_考试退出---通用版本
+            GDT_Id = "1030698963416763";
+        }
         Toasty.error(this, "点击广告获得完整的考试体验！").show();
         //TT_banner = findViewById(R.id.exam_TT_banner);
         GDT_banner = findViewById(R.id.GDT_banner);
@@ -571,7 +578,6 @@ public class ExamActivity extends BaseActivity {
                             check_wrong_state = true;
                         } else {
                             Toasty.success(ExamActivity.this, "全部正确哦,您是个天才!", Toast.LENGTH_LONG).show();
-                            //startActivity(new Intent(ExamActivity.this, MainActivity.class));
                             finish();
                         }
                     }

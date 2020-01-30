@@ -44,17 +44,10 @@ public class SplashActivity extends BaseActivity {
     ViewGroup logo;
     IAdWorker mWorker;
     public String[] permissions = null;
-    //Mi开屏广告ID---通用版本
-    //private static final String POSITION_ID = "a897ffc9980907b94239cc601e160ce7";
-    //Mi开屏广告ID---华为版本
-    private static final String POSITION_ID = "983a690f3f742be56e2a107e6cd1363c";
+    String POSITION_ID;
     //Mi测试参数
     //private static final String POSITION_ID ="b373ee903da0c6fc9c9da202df95a500";
-
-    //广点通开屏ID---通用版本
-    //String GTD_SplashID = "3020360826493817";
-    //广点通开屏ID---华为版本
-    String GTD_SplashID = "2010394840539862";
+    String GTD_SplashID;
     //广点通开屏测试ID
     //String GTD_SplashID = "8863364436303842593";
     SplashAD splashAD;
@@ -104,6 +97,18 @@ public class SplashActivity extends BaseActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
         setContentView(R.layout.activity_splash);
+        if (Myapp.hw_Version) {
+            //广点通开屏ID---华为版本
+            GTD_SplashID = "2010394840539862";
+            //Mi开屏广告ID---华为版本
+            POSITION_ID = "983a690f3f742be56e2a107e6cd1363c";
+        } else {
+            //广点通开屏ID---通用版本
+            GTD_SplashID = "3020360826493817";
+            //Mi开屏广告ID---通用版本
+            POSITION_ID = "a897ffc9980907b94239cc601e160ce7";
+        }
+
         logo_pic = findViewById(R.id.logo_pic);
         mi_container = findViewById(R.id.mi_container);
         GDT_container = findViewById(R.id.GDT_container);

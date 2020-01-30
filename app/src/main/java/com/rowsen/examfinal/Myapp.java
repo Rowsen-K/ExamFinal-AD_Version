@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 public class Myapp extends Application {
     public static int version = 1;
+    public static boolean hw_Version = false;
     private static Myapp instance;
     static ArrayList<Bean> list;
     public static String exam_table;
