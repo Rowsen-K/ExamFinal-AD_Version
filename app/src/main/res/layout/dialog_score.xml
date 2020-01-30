@@ -183,7 +183,7 @@
             android:background="@drawable/tv_sel_bule"
             android:gravity="center"
             android:padding="5.0dip"
-            android:text="确认"
+            android:text="退出考试"
             android:textColor="@color/dark_blue"
             android:textSize="18sp" />
     </LinearLayout>
