@@ -45,21 +45,20 @@ public class MainActivity extends BaseActivity {
     /*    TTAdNative mTTAdNative;
         TTNativeExpressAd mTTAd;*/
     //gdt横幅广告ID---通用版本
-    String GDT_posId = "2050594035277672";
+    //String GDT_posId = "2050594035277672";
     //gdt横幅广告ID---华为版本
-    //String GDT_posId = "2040296830231863";
+    String GDT_posId = "2040296830231863";
     //BannerView bv;
     //Mi横幅ID---通用版本
-    String Mi_posId = "9b45afa5ea4decaaecb0aaad06de100c";
+    //String Mi_posId = "9b45afa5ea4decaaecb0aaad06de100c";
     //Mi横幅ID---华为版本
-    //String Mi_posId = "a176ad175bc39db2d6c0513da8a1db4d";
-    //static final String Mi_posId = "19684d52bf8ab255e13f387b3dff4f41";
+    String Mi_posId = "a176ad175bc39db2d6c0513da8a1db4d";
     BannerAD bannerAD;
 
     //gdt_原生退出通用ID
-    String GDT_Id = "6050695992493656";
+    //String GDT_Id = "6050695992493656";
     //gdt_原生退出华为ID
-    //String GDT_Id = "5050593992793695";
+    String GDT_Id = "5050593992793695";
     private NativeExpressAD nativeExpressAD;
     private NativeExpressADView nativeExpressADView;
     String TAG = "T";
@@ -84,7 +83,7 @@ public class MainActivity extends BaseActivity {
                     nativeExpressAD = null;
                     nativeExpressADView = null;
                     gdtAd = null;
-                    //dialog_exit.dismiss();
+                    dialog_exit.dismiss();
                     dialog_exit = null;
                     for (Activity act : Myapp.activitys) {
                         if (act != null)

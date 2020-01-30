@@ -215,8 +215,7 @@ public class ZlActivity extends BaseActivity {
                     searchResult.setVisibility(View.VISIBLE);
                     show_result = true;
                 }
-            }
-            else {
+            } else {
                 if (pos.size() == 0) {
                     Toasty.warning(ZlActivity.this, "题库中没有找到相关的题目!", Toast.LENGTH_SHORT).show();
                     YoYo.with(Techniques.StandUp)

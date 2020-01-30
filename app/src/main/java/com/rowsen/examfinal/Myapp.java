@@ -4,8 +4,12 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.util.Log;
 
 import com.miui.zeus.mimo.sdk.MimoSdk;
+import com.tencent.android.tpush.XGIOperateCallback;
+import com.tencent.android.tpush.XGPushConfig;
+import com.tencent.android.tpush.XGPushManager;
 import com.tencent.stat.StatService;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -67,6 +71,24 @@ public class Myapp extends Application {
         activitys = new ArrayList<>();
         list = new ArrayList<>();
         instance = this;
+
+        XGPushConfig.enableOtherPush(this, true);
+        XGPushConfig.setMiPushAppId(this, "2882303761517942601");
+        XGPushConfig.setMiPushAppKey(this, "5121794213601");
+        XGPushManager.registerPush(this, new XGIOperateCallback() {
+            @Override
+            public void onSuccess(Object data, int flag) {
+                //token在设备卸载重装的时候有可能会变
+                Log.d("TPush", "注册成功，设备token为：" + data);
+            }
+
+            @Override
+            public void onFail(Object data, int errCode, String msg) {
+                Log.d("TPush", "注册失败，错误码：" + errCode + ",错误信息：" + msg);
+            }
+        });
+
+
         //穿山甲初始化
         /*ttAdManager = TTAdSdk.init(this,
                 new TTAdConfig.Builder()
