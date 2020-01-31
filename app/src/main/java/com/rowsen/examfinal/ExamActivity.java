@@ -517,7 +517,7 @@ public class ExamActivity extends BaseActivity {
             public void onClick(View view) {
                 clock.stop();
                 Long useTime = System.currentTimeMillis() - startTime;
-                AlertDialog.Builder builder = new AlertDialog.Builder(ExamActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ExamActivity.this,R.style.MyDialog);
                 int score = 0;
                 wrongList = new ArrayList();
                 for (Bean j : exam) {

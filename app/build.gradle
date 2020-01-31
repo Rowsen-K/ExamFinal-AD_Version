@@ -26,7 +26,7 @@ android {
                 //AXYJ5PBV768L 属于应用"电工复审考试"独有的 Android AppKey, 用于配置SDK
                 MTA_APPKEY   : "AXYJ5PBV768L",
                 //标注应用推广渠道用以区分新用户来源，可填写如应用宝，豌豆荚等
-                MTA_CHANNEL  : "小米",
+                MTA_CHANNEL  : "华为",
                 XG_ACCESS_ID : "2100352692",
                 XG_ACCESS_KEY: "A4V91YPA9W3M",
                 //如果需要华为通道，则加上华为的APPID

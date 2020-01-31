@@ -115,7 +115,7 @@ public class SQLFunction {
      **/
     public static ArrayList queryType(Context context, String tableName, int type) {
         initTable(context);
-        ArrayList list;
+        ArrayList<Bean> list;
         String sql = "select * from " + tableName + " where Type = ?";
         if (type != 1 && type != 2) {
             Toasty.error(context, "获取考题类型失败，请退出重启软件！").show();
@@ -125,14 +125,13 @@ public class SQLFunction {
             net.sqlcipher.Cursor cursor = sqLiteDatabase.rawQuery(sql, new String[]{String.valueOf(type)});
             int clos_len = cursor.getColumnCount();                 //获取数据所有列数
             Log.i("TAG:", "querySQLite()方法中获得总列数clos_len：" + clos_len);
-            list = new ArrayList<Bean>();
+            list = new ArrayList();
             if ("上岗证".equals(tableName))
                 addAll(cursor, list, false);
             else
                 addAll(cursor, list, true);
         }
         Log.i("TAG:", "查询完毕，返回数据：" + list.size());
-
         return list;
     }
 
