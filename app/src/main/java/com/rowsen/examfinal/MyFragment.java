@@ -4,12 +4,16 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.rowsen.mytools.Tools;
 
 import java.util.ArrayList;
 
@@ -40,7 +44,7 @@ public class MyFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment, container, false);
         lv = v.findViewById(R.id.frg_lv);
         switch (mode) {
@@ -67,35 +71,66 @@ public class MyFragment extends Fragment {
                     }
 
                     @Override
+                    public int getViewTypeCount() {
+                        return 2;
+                    }
+
+                    @Override
+                    public int getItemViewType(int position) {
+                        if(TextUtils.isEmpty(list.get(position).img))
+                            return 0;
+                        else
+                            return 1;
+                    }
+
+                    @Override
                     public View getView(int position, View convertView, ViewGroup parent) {
-                        View v;
-                        if (convertView == null) {
-                            v = View.inflate(getContext(), R.layout.selection_item_layout, null);
-                        } else v = convertView;
+                        ViewHolder_selection selection = null;
                         Bean sb = list.get(position);
-                        TextView ques;
-                        TextView ans1;
-                        ques = v.findViewById(R.id.tv_question);
-                        ans1 = v.findViewById(R.id.tv_answer1);
-                        if (sb.flag) v.setBackgroundColor(getResources().getColor(R.color.bg1));
-                        else v.setBackgroundColor(getResources().getColor(R.color.zlyellow));
-                        ques.setText(sb.No + "、" + sb.question);
+                        switch (getItemViewType(position)){
+                            case 0:
+                                if (convertView == null) {
+                                    convertView = View.inflate(getContext(), R.layout.selection_item_layout, null);
+                                    selection = new ViewHolder_selection();
+                                    selection.root = convertView.findViewById(R.id.root);
+                                    selection.ques = convertView.findViewById(R.id.tv_question);
+                                    selection.ans1 = convertView.findViewById(R.id.tv_answer1);
+                                    convertView.setTag(selection);
+                                } else selection = (ViewHolder_selection) convertView.getTag();
+                                break;
+                            case 1:
+                                if (convertView == null) {
+                                    convertView = View.inflate(getContext(), R.layout.selection_img_item_layout, null);
+                                    selection = new ViewHolder_selection_img();
+                                    selection.root = convertView.findViewById(R.id.root);
+                                    selection.ques = convertView.findViewById(R.id.tv_question);
+                                    selection.ans1 = convertView.findViewById(R.id.tv_answer1);
+                                    ((ViewHolder_selection_img) selection).img = convertView.findViewById(R.id.question_img);
+                                    convertView.setTag(selection);
+                                }
+                                else selection = (ViewHolder_selection_img) convertView.getTag();
+                                ((ViewHolder_selection_img) selection).img.setImageBitmap(Tools.base64ToBitmap(sb.img.split("=")[1]));
+                                break;
+                        }
+                        if (sb.flag) selection.root.setBackgroundColor(getResources().getColor(R.color.bg1));
+                        else selection.root.setBackgroundColor(getResources().getColor(R.color.zlyellow));
+                        selection.ques.setText(sb.No + "、" + sb.question);
                         //Log.e("答案",sb.corAns);
                         switch (sb.corAns) {
                             case "A":
-                                ans1.setText(sb.answer1);
+                                selection.ans1.setText(sb.answer1);
                                 break;
                             case "B":
-                                ans1.setText(sb.answer2);
+                                selection.ans1.setText(sb.answer2);
                                 break;
                             case "C":
-                                ans1.setText(sb.answer3);
+                                selection.ans1.setText(sb.answer3);
                                 break;
                             case "D":
-                                ans1.setText(sb.answer4);
+                                selection.ans1.setText(sb.answer4);
                                 break;
                         }
-                        return v;
+                        return convertView;
                     }
                 };
                 break;
@@ -148,5 +183,13 @@ public class MyFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         lv.setAdapter(ba);
+    }
+
+    public class ViewHolder_selection{
+        ViewGroup root;
+        TextView ques,ans1;
+    }
+    public class ViewHolder_selection_img extends ViewHolder_selection{
+        ImageView img;
     }
 }

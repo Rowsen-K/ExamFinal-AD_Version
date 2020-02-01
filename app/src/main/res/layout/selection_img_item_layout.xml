@@ -1,52 +1,59 @@
-<?xml version="1.0" encoding="utf-8"?>
 <android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <android.support.percent.PercentRelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
         android:id="@+id/root"
-        android:layout_width="fill_parent"
-        android:layout_height="160dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="0dp"
-        app:layout_marginTopPercent="1%"
-        app:layout_widthPercent="98.9999%">
+        >
 
-        <ScrollView
+        <LinearLayout
             android:id="@+id/sv_question"
             android:layout_width="fill_parent"
-            android:layout_height="0dp"
+            android:layout_height="0.0dip"
             android:layout_centerHorizontal="true"
-            app:layout_heightPercent="62%"
-            app:layout_marginLeftPercent="2%"
-            app:layout_marginTopPercent="0.8%">
+            android:orientation="vertical"
+            app:layout_heightPercent="74.999996%"
+            app:layout_marginLeftPercent="4%"
+            app:layout_marginTopPercent="2%">
 
             <me.grantland.widget.AutofitTextView
                 android:id="@+id/tv_question"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
                 android:gravity="left"
-                android:maxLines="4"
-                android:text="这是一个问题11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+                android:maxLines="2"
+                android:text="这是一个问题"
                 android:textColor="@color/trans40"
-                android:textSize="20sp" />
-        </ScrollView>
+                android:textSize="18sp" />
+
+            <ImageView
+                android:id="@+id/question_img"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+        </LinearLayout>
 
         <android.support.percent.PercentRelativeLayout
             android:id="@+id/rl_answer1"
-            android:layout_width="fill_parent"
+            android:layout_width="0dp"
             android:layout_height="0.0dip"
             android:layout_below="@id/sv_question"
             android:layout_centerHorizontal="true"
             android:background="@drawable/bg_answernormal"
             android:clickable="true"
+            android:focusable="true"
             android:gravity="center_vertical"
-            app:layout_heightPercent="32.999998%"
+            app:layout_heightPercent="20.999998%"
+            app:layout_marginLeftPercent="5%"
             app:layout_marginTopPercent="0.99999952%"
-            app:layout_widthPercent="95.0%">
+            app:layout_widthPercent="95%">
 
             <com.andexert.library.RippleView
+                android:id="@+id/rip1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -54,14 +61,19 @@
                     android:id="@+id/tv_answer1"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="0dp"
                     android:gravity="center"
                     android:maxLines="2"
-                    android:text="1:"
+                    android:text="2:"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    app:layout_marginLeftPercent="1.9999981%"
-                    app:layout_marginRightPercent="1.9999981%" />
+                    app:layout_marginLeftPercent="4.9999981%"
+                    app:layout_marginRightPercent="4.9999981%" />
             </com.andexert.library.RippleView>
         </android.support.percent.PercentRelativeLayout>
+
     </android.support.percent.PercentRelativeLayout>
 </android.support.percent.PercentRelativeLayout>

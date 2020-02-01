@@ -23,6 +23,7 @@ import com.kekstudio.dachshundtablayout.DachshundTabLayout;
 import com.kekstudio.dachshundtablayout.indicators.DachshundIndicator;
 import com.rowsen.SqliteTools.SQLFunction;
 import com.rowsen.mytools.BaseActivity;
+import com.rowsen.mytools.Tools;
 
 import java.util.ArrayList;
 
@@ -181,34 +182,73 @@ public class ZlActivity extends BaseActivity {
                         }
 
                         @Override
+                        public int getViewTypeCount() {
+                            return 2;
+                        }
+
+                        @Override
+                        public int getItemViewType(int position) {
+                            if (TextUtils.isEmpty(pos.get(position).img))
+                                return 0;
+                            else
+                                return 1;
+                        }
+
+                        @Override
                         public View getView(int position, View convertView, ViewGroup parent) {
-                            View v;
-                            if (convertView == null)
-                                v = View.inflate(ZlActivity.this, R.layout.selection_item_layout, null);
-                            else v = convertView;
-                            TextView qus = v.findViewById(R.id.tv_question);
-                            TextView ans = v.findViewById(R.id.tv_answer1);
-                            Bean o = pos.get(position);
-                            qus.setText(o.No + "、" + o.question);
-                            if (o.type == 1) {
-                                switch (o.corAns) {
+                            ViewHolder_selection selection = null;
+                            Bean sb = pos.get(position);
+                            switch (getItemViewType(position)) {
+                                case 0:
+                                    if (convertView == null) {
+                                        convertView = View.inflate(ZlActivity.this, R.layout.selection_item_layout, null);
+                                        selection = new ViewHolder_selection();
+                                        selection.root = convertView.findViewById(R.id.root);
+                                        selection.ques = convertView.findViewById(R.id.tv_question);
+                                        selection.ans1 = convertView.findViewById(R.id.tv_answer1);
+                                        convertView.setTag(selection);
+                                    } else selection = (ViewHolder_selection) convertView.getTag();
+                                    break;
+                                case 1:
+                                    if (convertView == null) {
+                                        convertView = View.inflate(ZlActivity.this, R.layout.selection_img_item_layout, null);
+                                        selection = new ViewHolder_selection_img();
+                                        selection.root = convertView.findViewById(R.id.root);
+                                        selection.ques = convertView.findViewById(R.id.tv_question);
+                                        selection.ans1 = convertView.findViewById(R.id.tv_answer1);
+                                        ((ViewHolder_selection_img) selection).img = convertView.findViewById(R.id.question_img);
+                                        convertView.setTag(selection);
+                                    } else
+                                        selection = (ViewHolder_selection_img) convertView.getTag();
+                                    ((ViewHolder_selection_img) selection).img.setImageBitmap(Tools.base64ToBitmap(sb.img.split("=")[1]));
+                                    break;
+                            }
+                            if (sb.flag)
+                                selection.root.setBackgroundColor(getResources().getColor(R.color.bg1));
+                            else
+                                selection.root.setBackgroundColor(getResources().getColor(R.color.zlyellow));
+                            if (sb.type == 1) {
+                                selection.ques.setText(sb.No + "、" + sb.question);
+                                switch (sb.corAns) {
                                     case "A":
-                                        ans.setText(o.answer1);
+                                        selection.ans1.setText(sb.answer1);
                                         break;
                                     case "B":
-                                        ans.setText(o.answer2);
+                                        selection.ans1.setText(sb.answer2);
                                         break;
                                     case "C":
-                                        ans.setText(o.answer3);
+                                        selection.ans1.setText(sb.answer3);
                                         break;
                                     case "D":
-                                        ans.setText(o.answer4);
+                                        selection.ans1.setText(sb.answer4);
                                         break;
                                 }
                             } else {
-                                ans.setText(o.corAns);
+                                int n = Integer.valueOf(sb.No) - selList.size();
+                                selection.ques.setText(n + "、" + sb.question);
+                                selection.ans1.setText(sb.corAns);
                             }
-                            return v;
+                            return convertView;
                         }
                     };
                     searchList.setAdapter(a);
@@ -262,5 +302,14 @@ public class ZlActivity extends BaseActivity {
         }
         if (expanded) search();
         expanded = !expanded;
+    }
+
+    public class ViewHolder_selection {
+        ViewGroup root;
+        TextView ques, ans1;
+    }
+
+    public class ViewHolder_selection_img extends ViewHolder_selection {
+        ImageView img;
     }
 }
