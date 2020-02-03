@@ -29,31 +29,29 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
 
-            <ScrollView
-                android:id="@+id/sv_question"
+            <TextView
+                android:id="@+id/tv_question"
                 android:layout_width="fill_parent"
                 android:layout_height="0.0dip"
                 android:layout_centerHorizontal="true"
-                app:layout_heightPercent="27.999996%"
+                android:gravity="left"
+                android:maxLines="6"
+                android:text="这是一个问题"
+                android:textColor="@color/trans40"
+                android:textSize="20sp"
+                app:autoSizeMaxTextSize="20sp"
+                app:autoSizeMinTextSize="8sp"
+                app:autoSizeStepGranularity="0.5sp"
+                app:autoSizeTextType="uniform"
+                app:layout_heightPercent="30.999996%"
                 app:layout_marginLeftPercent="4%"
-                app:layout_marginTopPercent="12%">
-
-                <me.grantland.widget.AutofitTextView
-                    android:id="@+id/tv_question"
-                    android:layout_width="fill_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="left"
-                    android:maxLines="3"
-                    android:text="这是一个问题"
-                    android:textColor="@color/trans40"
-                    android:textSize="18sp" />
-            </ScrollView>
+                app:layout_marginTopPercent="11%" />
 
             <ImageView
                 android:id="@+id/iv_result"
                 android:layout_width="75dip"
                 android:layout_height="60dip"
-                android:layout_alignTop="@id/sv_question"
+                android:layout_alignTop="@id/tv_question"
                 android:scaleType="fitXY"
                 android:src="@drawable/icon_gameright"
                 android:visibility="invisible"
@@ -63,14 +61,14 @@
                 android:id="@+id/rl_answer1"
                 android:layout_width="fill_parent"
                 android:layout_height="0.0dip"
-                android:layout_below="@id/sv_question"
+                android:layout_below="@id/tv_question"
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/bg_answernormal"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 app:layout_heightPercent="15.999998%"
-                app:layout_marginTopPercent="4.99999952%"
+                app:layout_marginTopPercent="2.99999952%"
                 app:layout_widthPercent="95.0%">
 
                 <com.andexert.library.RippleView
@@ -78,17 +76,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <me.grantland.widget.AutofitTextView
+                    <TextView
                         android:id="@+id/tv_answer1"
                         android:layout_width="match_parent"
                         android:layout_height="fill_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
                         android:gravity="center"
+                        android:maxLines="2"
                         android:text="1:"
                         android:textColor="@color/white"
                         android:textSize="16sp"
-                        android:maxLines="2"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"/>
+                        app:autoSizeMaxTextSize="16sp"
+                        app:autoSizeMinTextSize="8sp"
+                        app:autoSizeStepGranularity="1sp"
+                        app:autoSizeTextType="uniform" />
                 </com.andexert.library.RippleView>
             </android.support.percent.PercentRelativeLayout>
 
@@ -111,17 +113,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <me.grantland.widget.AutofitTextView
+                    <TextView
                         android:id="@+id/tv_answer2"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
                         android:gravity="center"
                         android:maxLines="2"
                         android:text="2:"
                         android:textColor="@color/white"
                         android:textSize="16sp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp" />
+                        app:autoSizeMaxTextSize="16sp"
+                        app:autoSizeMinTextSize="8sp"
+                        app:autoSizeStepGranularity="1sp"
+                        app:autoSizeTextType="uniform" />
                 </com.andexert.library.RippleView>
             </android.support.percent.PercentRelativeLayout>
 
@@ -144,17 +150,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <me.grantland.widget.AutofitTextView
+                    <TextView
                         android:id="@+id/tv_answer3"
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
                         android:gravity="center"
                         android:maxLines="2"
                         android:text="3:"
                         android:textColor="@color/white"
                         android:textSize="16sp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"/>
+                        app:autoSizeMaxTextSize="16sp"
+                        app:autoSizeMinTextSize="8sp"
+                        app:autoSizeStepGranularity="1sp"
+                        app:autoSizeTextType="uniform" />
                 </com.andexert.library.RippleView>
             </android.support.percent.PercentRelativeLayout>
 

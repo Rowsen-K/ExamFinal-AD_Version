@@ -13,31 +13,29 @@
         app:layout_marginTopPercent="1%"
         app:layout_widthPercent="98.9999%">
 
-        <ScrollView
-            android:id="@+id/sv_question"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_centerHorizontal="true"
-            app:layout_heightPercent="62%"
-            app:layout_marginLeftPercent="2%"
-            app:layout_marginTopPercent="0.8%">
-
-            <me.grantland.widget.AutofitTextView
+            <TextView
                 android:id="@+id/tv_question"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_centerHorizontal="true"
+                app:layout_heightPercent="62%"
+                app:layout_marginLeftPercent="2%"
+                app:layout_marginTopPercent="0.8%"
                 android:gravity="left"
-                android:maxLines="4"
-                android:text="这是一个问题11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+                android:maxLines="6"
+                android:text="这是一个问题"
                 android:textColor="@color/trans40"
-                android:textSize="20sp" />
-        </ScrollView>
+                android:textSize="20sp"
+                app:autoSizeMaxTextSize="20sp"
+                app:autoSizeMinTextSize="8sp"
+                app:autoSizeStepGranularity="0.5sp"
+                app:autoSizeTextType="uniform"/>
 
         <android.support.percent.PercentRelativeLayout
             android:id="@+id/rl_answer1"
             android:layout_width="fill_parent"
             android:layout_height="0.0dip"
-            android:layout_below="@id/sv_question"
+            android:layout_below="@id/tv_question"
             android:layout_centerHorizontal="true"
             android:background="@drawable/bg_answernormal"
             android:clickable="true"
@@ -50,17 +48,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <me.grantland.widget.AutofitTextView
+                <TextView
                     android:id="@+id/tv_answer1"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
                     android:gravity="center"
                     android:maxLines="2"
                     android:text="1:"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    app:layout_marginLeftPercent="1.9999981%"
-                    app:layout_marginRightPercent="1.9999981%" />
+                    app:autoSizeMaxTextSize="16sp"
+                    app:autoSizeMinTextSize="8sp"
+                    app:autoSizeStepGranularity="1sp"
+                    app:autoSizeTextType="uniform"/>
             </com.andexert.library.RippleView>
         </android.support.percent.PercentRelativeLayout>
     </android.support.percent.PercentRelativeLayout>

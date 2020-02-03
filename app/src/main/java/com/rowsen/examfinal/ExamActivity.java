@@ -515,7 +515,7 @@ public class ExamActivity extends BaseActivity {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View view) {
-                clock.stop();
+                //clock.stop();
                 Long useTime = System.currentTimeMillis() - startTime;
                 AlertDialog.Builder builder = new AlertDialog.Builder(ExamActivity.this,R.style.MyDialog);
                 int score = 0;

@@ -19,7 +19,7 @@
             app:layout_marginLeftPercent="4%"
             app:layout_marginTopPercent="2%">
 
-            <me.grantland.widget.AutofitTextView
+            <TextView
                 android:id="@+id/tv_question"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -28,7 +28,11 @@
                 android:maxLines="2"
                 android:text="这是一个问题"
                 android:textColor="@color/trans40"
-                android:textSize="18sp" />
+                android:textSize="20sp"
+                app:autoSizeMaxTextSize="20sp"
+                app:autoSizeMinTextSize="8sp"
+                app:autoSizeStepGranularity="0.5sp"
+                app:autoSizeTextType="uniform"/>
 
             <ImageView
                 android:id="@+id/question_img"
@@ -57,21 +61,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <me.grantland.widget.AutofitTextView
+                <TextView
                     android:id="@+id/tv_answer1"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentBottom="true"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginBottom="0dp"
                     android:gravity="center"
                     android:maxLines="2"
                     android:text="2:"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    app:layout_marginLeftPercent="4.9999981%"
-                    app:layout_marginRightPercent="4.9999981%" />
+                    app:autoSizeMaxTextSize="16sp"
+                    app:autoSizeMinTextSize="8sp"
+                    app:autoSizeStepGranularity="1sp"
+                    app:autoSizeTextType="uniform"/>
             </com.andexert.library.RippleView>
         </android.support.percent.PercentRelativeLayout>
 
