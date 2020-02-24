@@ -26,10 +26,6 @@ public class PracticeActivity extends BaseActivity {
     TextView record;
     HashMap<Integer, Integer> mark;
 
-    RippleView rip1;
-    RippleView rip2;
-    RippleView rip3, rip4;
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -38,10 +34,6 @@ public class PracticeActivity extends BaseActivity {
         change = null;
         record = null;
         mark = null;
-        rip1 = null;
-        rip2 = null;
-        rip3 = null;
-        rip4 = null;
     }
 
     @Override
@@ -160,7 +152,8 @@ public class PracticeActivity extends BaseActivity {
                                 judgeView.img.setImageResource(R.drawable.icon_gameright);
                             } else judgeView.img.setImageResource(R.drawable.icon_gamewrong);
                             judgeView.img.setVisibility(View.VISIBLE);
-                        } else {
+                        }
+                        else {
                             judgeView.item1.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             judgeView.item2.setBackground(getResources().getDrawable(R.drawable.bg_answernormal));
                             judgeView.img.setVisibility(View.INVISIBLE);

@@ -67,7 +67,7 @@ public class ExamActivity extends BaseActivity {
     int selectionNum;
     int judgeNum;
     Handler handler;
-    TextView title;
+    ViewGroup title;
     BaseAdapter exam_list_adapter;
 
     ImageView tmall;
@@ -641,7 +641,7 @@ public class ExamActivity extends BaseActivity {
                     cancelADView();
                     nativeExpressAD = null;
                     nativeExpressADView = null;
-                    gdtAd = null;
+                    //gdtAd = null;
                     dialog_exit.dismiss();
                     dialog_exit = null;
                     finish();

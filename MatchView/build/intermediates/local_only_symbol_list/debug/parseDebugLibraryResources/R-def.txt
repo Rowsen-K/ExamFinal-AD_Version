@@ -1,0 +1,6 @@
+R_DEF: Internal format may change without notice
+local
+attr? text
+attr? textColor
+attr? textSize
+styleable match text textColor textSize

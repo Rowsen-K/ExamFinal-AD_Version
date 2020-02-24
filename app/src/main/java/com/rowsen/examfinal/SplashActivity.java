@@ -52,6 +52,8 @@ public class SplashActivity extends BaseActivity {
     //String GTD_SplashID = "8863364436303842593";
     SplashAD splashAD;
 
+    //防止多次show_logo
+    boolean logo_show = false;
     //跳转状态
     boolean jump_state = false;
 
@@ -208,7 +210,10 @@ public class SplashActivity extends BaseActivity {
                 public void onAdFailed(String s) {
                     Log.e("失败", "ad fail message : " + s);
                     //gdtSplashAD();
-                    logo_show();
+                    if(!logo_show) {
+                        logo_show = true;
+                        handler.sendEmptyMessage(1);
+                    }
                 }
 
                 @Override
@@ -226,7 +231,10 @@ public class SplashActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
             //gdtSplashAD();
-            handler.sendEmptyMessage(1);
+            if(!logo_show) {
+                logo_show = true;
+                handler.sendEmptyMessage(1);
+            }
         }
     }
 

@@ -51,16 +51,37 @@
             android:background="@drawable/bg_top"
             android:orientation="horizontal">
 
-            <TextView
+            <RelativeLayout
                 android:id="@+id/title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="错题复习"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+                android:layout_height="match_parent"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/title_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="错题复习"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/title_note"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="红色为你的答案，绿色为正确答案，判断题只显示你的答案"
+                    android:textColor="@color/blue"
+                    android:textSize="12sp"
+                    android:maxLines="1"
+                    app:autoSizeMaxTextSize="12sp"
+                    app:autoSizeMinTextSize="8sp"
+                    app:autoSizeStepGranularity="0.5sp"
+                    app:autoSizeTextType="uniform" />
+            </RelativeLayout>
 
             <com.rowsen.mytools.SnapUpCountDownTimerView
                 android:id="@+id/countDown"
@@ -68,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                app:viewSize="22"></com.rowsen.mytools.SnapUpCountDownTimerView>
+                app:viewSize="22"/>
 
             <Button
                 android:id="@+id/get"
